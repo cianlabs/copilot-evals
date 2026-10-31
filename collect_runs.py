@@ -22,6 +22,9 @@ Add --real to use the live model. That reads XAI_API_KEY from the environment.
 The key is never printed, never logged, and never written into runs.jsonl.
 
 Add --passes 3 to ask every question three times.
+
+Add --trace to also write traces.jsonl next to the runs file, one JSON
+line per step. Without --trace, this file does the same work as before.
 """
 
 import argparse
@@ -33,6 +36,11 @@ import subprocess
 import sys
 import time
 from pathlib import Path
+
+# trace.py is the step logger in this folder. It is not Python's standard
+# library module of the same name. Running this script from this folder
+# makes this import pick up the local file.
+import trace
 
 # This commit is main of cianlabs/runbook-copilot when this harness was written
 # (the week-4 UI and stop-reason work). A fresh clone checks out this commit
@@ -315,18 +323,109 @@ def append_record(path, record):
         handle.write(line + "\n")
 
 
-def collect(questions, output_path, client, agent_mod, passes=1):
+def existing_line_count(path):
+    """How many lines are already in the runs file. A missing file counts as 0.
+
+    The next run number is this count plus one, so it matches that line
+    in runs.jsonl.
+    """
+    path = Path(path)
+    if not path.is_file():
+        return 0
+    text = path.read_text(encoding="utf-8")
+    if not text:
+        return 0
+    return len(text.splitlines())
+
+
+def _elapsed_ms(started):
+    """Milliseconds since `started`, from the same kind of clock as the run timer."""
+    return max(0, int(round((time.perf_counter() - started) * 1000)))
+
+
+def watch_for_trace(agent_mod, notes):
+    """Remember each model call and each search while one question runs.
+
+    The vendored loop does not time each step. The events it saves only
+    mention the top score, not every title. We wrap the functions here,
+    in this file, and we do not edit runbook-copilot.
+
+    Each wrapper calls the real function and returns the same value.
+    Call the function this returns to put the originals back.
+    Only collect() with a tracer installs these wrappers.
+    """
+    original_search = agent_mod.TOOLS["search_runbooks"]
+    original_ask = agent_mod.ask_model
+
+    def watched_search(query):
+        started = time.perf_counter()
+        failure = None
+        results = None
+        try:
+            results = original_search(query)
+            return results
+        except Exception as err:
+            # Keep the name the agent already uses, such as EMPTY_QUERY.
+            failure = getattr(err, "name", None) or "UNEXPECTED_ERROR"
+            raise
+        finally:
+            # A query that is not text is not stored. That avoids dumping
+            # some other object into the trace.
+            saved_query = query if isinstance(query, str) else ""
+            hits = []
+            if results:
+                hits = [trace.public_hit(item) for item in results]
+            notes.append({
+                "kind": "tool",
+                "name": "search_runbooks",
+                "query": saved_query,
+                "results": hits,
+                "latency_ms": _elapsed_ms(started),
+                "failure": failure,
+            })
+
+    def watched_ask(client, messages, tools=None):
+        started = time.perf_counter()
+        try:
+            return original_ask(client, messages, tools=tools)
+        finally:
+            # Only the time. The messages can hold the question, and the
+            # question is already on the run record. Do not copy them.
+            notes.append({"kind": "model", "latency_ms": _elapsed_ms(started)})
+
+    agent_mod.TOOLS["search_runbooks"] = watched_search
+    agent_mod.ask_model = watched_ask
+
+    def restore():
+        agent_mod.TOOLS["search_runbooks"] = original_search
+        agent_mod.ask_model = original_ask
+
+    return restore
+
+
+def collect(questions, output_path, client, agent_mod, passes=1, tracer=None):
     """Run every question `passes` times. Append one JSON line each time.
 
     Logging to agent.log is off for the whole call, then restored.
+    When tracer is set, also append one JSON line per step. Leave tracer
+    empty and this function does the same work as before.
     """
     saved_log = agent_mod.LOG_FILE
     agent_mod.LOG_FILE = None
+    # Notes for the current question. Cleared before each question.
+    # Only filled when the wrappers are installed, which is when tracer is set.
+    notes = []
+    restore_watch = None
+    if tracer is not None:
+        restore_watch = watch_for_trace(agent_mod, notes)
     written = 0
     failures = 0
+    # The first new line keeps the next number after whatever is already there.
+    run_number = existing_line_count(output_path)
     try:
         for pass_number in range(1, passes + 1):
             for index, (category, question) in enumerate(questions, start=1):
+                notes.clear()
                 fields = run_one(agent_mod, client, question)
                 record = {
                     "question": question,
@@ -343,6 +442,15 @@ def collect(questions, output_path, client, agent_mod, passes=1):
                 }
                 append_record(output_path, record)
                 written += 1
+                run_number += 1
+                if tracer is not None:
+                    # The loop's own short diary. It tells us about an action
+                    # request, which does not go through the search wrapper.
+                    loop_events = []
+                    live = getattr(agent_mod, "last_trace", None)
+                    if live is not None:
+                        loop_events = list(getattr(live, "events", None) or [])
+                    tracer.write_run(run_number, record, list(notes), loop_events)
                 if record["failure"]:
                     failures += 1
                     status = f"FAILURE {record['failure']}"
@@ -354,6 +462,8 @@ def collect(questions, output_path, client, agent_mod, passes=1):
                 print(scrub(f"{prefix} {category}  {status}  {record['seconds']:.3f}s  {question}"))
     finally:
         agent_mod.LOG_FILE = saved_log
+        if restore_watch is not None:
+            restore_watch()
     return written, failures
 
 
@@ -385,6 +495,11 @@ def parse_args(argv):
         type=Path,
         default=Path("runs.jsonl"),
         help="File to append JSON lines to. Default: runs.jsonl in the current directory.",
+    )
+    parser.add_argument(
+        "--trace",
+        action="store_true",
+        help="Also write traces.jsonl next to the runs file, one JSON line per step.",
     )
     parser.add_argument(
         "--copilot-path",
@@ -423,6 +538,10 @@ def main(argv=None):
 
     commit = checkout_commit(checkout)
     mode = "real model" if args.real else "practice model (no API key, no model network call)"
+    tracer = None
+    if args.trace:
+        # Next to the runs file, whatever folder that file is in.
+        tracer = trace.Tracer(args.output.resolve().parent / "traces.jsonl")
     print(f"Using runbook-copilot at {checkout}")
     print(f"Commit: {commit}")
     if commit not in (PINNED_COMMIT, "unknown"):
@@ -430,11 +549,18 @@ def main(argv=None):
     print(f"Mode: {mode}")
     print(f"Questions: {len(questions)}  Passes: {args.passes}")
     print(f"Appending to {args.output.resolve()}")
+    if tracer is not None:
+        print(f"Writing a trace to {tracer.path}")
+        print("The trace lists steps, runbook titles, and scores. It does not store keys.")
     print("This file is not emptied first. Delete it if you want a fresh pass.")
+    if tracer is not None:
+        print("The trace file is not emptied either. Delete both if you want a fresh pass.")
     print("Proposed actions are declined. Nothing will be run.")
     print()
 
-    written, failures = collect(questions, args.output, client, agent_mod, passes=args.passes)
+    written, failures = collect(
+        questions, args.output, client, agent_mod, passes=args.passes, tracer=tracer,
+    )
     print()
     print(f"Wrote {written} lines to {args.output}. Agent failures recorded: {failures}.")
     # Collecting a failure is the point of this file, so a named AgentError
