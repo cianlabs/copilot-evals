@@ -14,7 +14,7 @@ One row per run from the 30 practice-model runs, pass 1. Run number is the order
 | 6 | answerable | ANSWERED | PARTIAL_ANSWER | Right runbook, only the symptom line, no fix steps. |
 | 7 | answerable | ANSWERED | PARTIAL_ANSWER | Right runbook, only the symptom line, no fix steps. |
 | 8 | answerable | ANSWERED | PARTIAL_ANSWER | Right runbook, only the symptom line, no fix steps. |
-| 9 | answerable | ANSWERED | unreviewed | Likely pass. Right runbooks, and they cite fix sections. |
+| 9 | answerable | ANSWERED | PARTIAL_ANSWER | Answer is only symptom lines, no fix step (found by the code check). |
 | 10 | answerable | ANSWERED | unreviewed | Likely pass. Right runbooks, and they cite fix sections. |
 | 11 | answerable | ANSWERED | unreviewed | Likely pass. Right runbooks, and they cite fix sections. |
 | 12 | answerable | ANSWERED | unreviewed | Likely pass. Right runbooks, and they cite fix sections. |

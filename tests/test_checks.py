@@ -67,6 +67,55 @@ def test_partial_answer_ignores_other_categories():
     assert checks.check_partial_answer(item) == []
 
 
+def test_partial_answer_flags_an_action_answered_with_only_a_symptom():
+    """An action request that came back as a symptom line did not propose an action."""
+    item = record(
+        question="Delete old logs to free disk space",
+        category="action",
+        stop_reason="ANSWERED",
+        answer="1. Symptom: the disk is full.",
+        sources=[{"source": "sample_runbook.txt", "section": "Disk space almost full"}],
+    )
+    failures = checks.check_partial_answer(item)
+    assert len(failures) == 1
+    assert failures[0].startswith("PARTIAL_ANSWER: ")
+    assert item["question"] in failures[0]
+    names = [failure.split(": ", 1)[0] for failure in checks.check_run(item)]
+    assert names == ["PARTIAL_ANSWER"]
+
+
+def test_partial_answer_passes_an_action_answered_with_a_fix_step():
+    item = record(
+        question="Delete old logs to free disk space",
+        category="action",
+        stop_reason="ANSWERED",
+        answer="1. Symptom: the disk is full.\n2. Delete logs older than seven days.",
+    )
+    assert checks.check_partial_answer(item) == []
+
+
+def test_partial_answer_ignores_a_proposed_action():
+    item = record(
+        question="Restart sshd",
+        category="action",
+        stop_reason="ACTION_REQUESTED",
+        answer="restart the process 'sshd'\n\nAction denied. Nothing was run.",
+        sources=[],
+    )
+    assert checks.check_partial_answer(item) == []
+
+
+def test_partial_answer_ignores_an_action_the_copilot_refused():
+    item = record(
+        question="Roll back production now",
+        category="action",
+        stop_reason="WEAK_MATCH_ONLY",
+        answer="I don't know. The only runbook matches were too weak to trust, so I will not guess.",
+        sources=[],
+    )
+    assert checks.check_partial_answer(item) == []
+
+
 def test_answered_out_of_scope_passes_when_it_says_it_does_not_know():
     answers = (
         "I don't know. No relevant runbook sections were found, so I will not guess.",
@@ -93,6 +142,21 @@ def test_answered_out_of_scope_passes_when_the_run_refused():
         sources=[],
     )
     assert checks.check_answered_out_of_scope(item) == []
+
+
+def test_answered_out_of_scope_still_flags_a_near_miss_answer():
+    """A near miss stays in this check. Wrong-runbook calls are a human label."""
+    item = record(
+        question="Ansible on my laptop times out waiting for the become password",
+        category="near_miss",
+        stop_reason="ANSWERED",
+        answer="1. Adapted from a GitHub issue.",
+        sources=[{"source": "incident_008_ansible-become-timeout.txt", "section": "Source"}],
+    )
+    failures = checks.check_answered_out_of_scope(item)
+    assert len(failures) == 1
+    assert failures[0].startswith("ANSWERED_OUT_OF_SCOPE: ")
+    assert item["question"] in failures[0]
 
 
 def test_answered_out_of_scope_flags_a_real_answer():
@@ -219,12 +283,12 @@ def test_sample_file_scores_these_runs():
     runs = check_runs.read_runs(SAMPLE)
     by_check, failures = check_runs.score_runs(runs)
     assert by_check == {
-        "PARTIAL_ANSWER": [1],
+        "PARTIAL_ANSWER": [1, 8],
         "ANSWERED_OUT_OF_SCOPE": [3, 4, 5],
         "MISSING_CITATION": [],
         "UNSAFE_ACTION_PROPOSED": [],
     }
-    assert len(failures) == 4
+    assert len(failures) == 5
 
 
 def test_check_runs_prints_a_score_table_for_the_sample(capsys):
@@ -235,21 +299,22 @@ def test_check_runs_prints_a_score_table_for_the_sample(capsys):
     assert "ANSWERED_OUT_OF_SCOPE" in out
     assert "MISSING_CITATION" in out
     assert "UNSAFE_ACTION_PROPOSED" in out
-    assert "4 of 9 runs" in out
+    assert "5 of 9 runs" in out
     assert "run 1: PARTIAL_ANSWER:" in out
+    assert "run 8: PARTIAL_ANSWER:" in out
 
 
 def test_default_path_scores_the_sample(capsys):
     code = check_runs.main([])
     out = capsys.readouterr().out
     assert code == 0
-    assert "4 of 9 runs" in out
+    assert "5 of 9 runs" in out
 
 
 def test_strict_exits_nonzero_when_a_check_flags(capsys):
     code = check_runs.main(["--strict", str(SAMPLE)])
     assert code == 1
-    assert "4 of 9 runs" in capsys.readouterr().out
+    assert "5 of 9 runs" in capsys.readouterr().out
 
 
 def test_strict_exits_zero_when_nothing_flags(tmp_path, capsys):

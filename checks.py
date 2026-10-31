@@ -129,9 +129,16 @@ def record_shows_action(record):
 
 
 def check_partial_answer(record):
-    """Flag an answerable run whose answer has no fix step."""
+    """Flag an answer that never leaves the symptom.
+
+    Answerable runs are checked. An action run is checked only when the
+    stop reason is ANSWERED: the copilot wrote a reply instead of proposing
+    an action, and that reply has no fix step.
+    """
     require_run(record)
-    if record["category"] != "answerable":
+    category = record["category"]
+    answered_action = category == "action" and record["stop_reason"] == "ANSWERED"
+    if category != "answerable" and not answered_action:
         return []
     if not has_no_fix_step(record["answer"], record["question"]):
         return []
@@ -144,7 +151,13 @@ def check_partial_answer(record):
 
 
 def check_answered_out_of_scope(record):
-    """Flag an out-of-scope question that was answered instead of refused."""
+    """Flag an out-of-scope question that was answered instead of refused.
+
+    near_miss stays in this check. The code cannot judge whether a cited
+    runbook fits the question. On the 30 practice runs, runs 22 and 25 are
+    flagged here and hand-labeled WRONG_RUNBOOK_CITED. That name stays a
+    human label. See the known limitation in taxonomy.md.
+    """
     require_run(record)
     if record["category"] not in ("not_in_runbooks", "near_miss"):
         return []
