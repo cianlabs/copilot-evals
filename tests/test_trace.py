@@ -362,6 +362,94 @@ def test_trace_records_the_step_where_bad_tool_args_broke(tmp_path, copilot):
     assert "BAD_TOOL_ARGS" in story
 
 
+def test_show_trace_prints_the_model_line_and_the_summary(tmp_path, capsys):
+    """Token totals add the recorded counts. A missing cost is not turned into zero."""
+    path = tmp_path / "traces.real.jsonl"
+    rows = [
+        {
+            "trace_id": "aaaaaa",
+            "run_number": 1,
+            "step": 1,
+            "node": "plan",
+            "inputs": {"question": "cpu"},
+            "tool_calls": [],
+            "tool_results": [],
+            "stop_reason": None,
+            "failure": "PARTIAL_ANSWER",
+            "latency_ms": 1200,
+            "run_latency_ms": 1500,
+            "model": "grok-build-0.1",
+            "tokens_in": 100,
+            "tokens_out": 20,
+            "cost": 0.00014,
+        },
+        {
+            "trace_id": "aaaaaa",
+            "run_number": 1,
+            "step": 2,
+            "node": "answer",
+            "inputs": {"question": "cpu"},
+            "tool_calls": [],
+            "tool_results": [],
+            "stop_reason": "ANSWERED",
+            "failure": "PARTIAL_ANSWER",
+            "latency_ms": 300,
+            "run_latency_ms": 1500,
+            "model": "grok-build-0.1",
+            "tokens_in": 10,
+            "tokens_out": 5,
+            "cost": 0.00002,
+        },
+        {
+            "trace_id": "bbbbbb",
+            "run_number": 2,
+            "step": 1,
+            "node": "answer",
+            "inputs": {"question": "bread"},
+            "tool_calls": [],
+            "tool_results": [],
+            "stop_reason": "NO_RELEVANT_RUNBOOK",
+            "failure": None,
+            "latency_ms": 500,
+            "run_latency_ms": 500,
+        },
+        {
+            "trace_id": "cccccc",
+            "run_number": 3,
+            "step": 1,
+            "node": "answer",
+            "inputs": {"question": "timeout"},
+            "tool_calls": [],
+            "tool_results": [],
+            "stop_reason": None,
+            "failure": "ModelTimeout",
+            "latency_ms": 2500,
+            "run_latency_ms": 2500,
+            "model": "grok-build-0.1",
+            "tokens_in": None,
+            "tokens_out": None,
+            "cost": None,
+        },
+    ]
+    path.write_text("".join(json.dumps(row) + "\n" for row in rows), encoding="utf-8")
+    code = show_trace.main([str(path), "1"])
+    story = capsys.readouterr().out
+    assert code == 0
+    assert "Model: grok-build-0.1, 1.2 s, 100 in, 20 out, about $0.000140" in story
+    assert "Model: grok-build-0.1, 0.3 s, 10 in, 5 out, about $0.000020" in story
+
+    code = show_trace.main([str(path), "--summary"])
+    summary = capsys.readouterr().out
+    assert code == 0
+    assert "Total time: 4.5 s (4500 ms)" in summary
+    assert "Total tokens: 135 (110 in, 25 out)" in summary
+    assert "Total estimated cost: $0.000160" in summary
+    # One run, even though two steps name the same class.
+    assert "PARTIAL_ANSWER  1" in summary
+    assert "ModelTimeout  1" in summary
+    assert "none  1" in summary
+
+
 def test_retrieval_math_on_a_made_up_example():
     """Three questions. The right runbook is 1st, 6th, and missing.
 

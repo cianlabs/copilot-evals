@@ -4,6 +4,7 @@
     python show_trace.py traces.jsonl 13
     python show_trace.py traces.jsonl --slowest 5
     python show_trace.py traces.jsonl --failures
+    python show_trace.py traces.jsonl --summary
 
 Run numbers match runs.jsonl. Run 13 is the 13th line of that file
 when both files were written by the same pass.
@@ -83,8 +84,111 @@ def format_event(event):
         lines.append("  Came back: Action denied. Nothing was run.")
     elif node == "answer":
         lines.append(f"  Stop reason: {event.get('stop_reason') or 'none'}")
+    model_line = format_model_line(event)
+    if model_line:
+        lines.append(model_line)
     lines.append(f"  Time: {event.get('latency_ms', 0)} ms")
     return lines
+
+
+def format_model_line(event):
+    """One line for a real model call. A practice step has no model name.
+
+    Token counts are printed only when the trace stored them. A missing
+    count is not shown as zero.
+    """
+    name = event.get("model")
+    if not isinstance(name, str) or not name:
+        return None
+    ms = event.get("latency_ms")
+    if not isinstance(ms, (int, float)) or isinstance(ms, bool):
+        ms = 0
+    line = f"  Model: {name}, {ms / 1000:.1f} s"
+    tokens_in = event.get("tokens_in")
+    tokens_out = event.get("tokens_out")
+    has_in = isinstance(tokens_in, int) and not isinstance(tokens_in, bool)
+    has_out = isinstance(tokens_out, int) and not isinstance(tokens_out, bool)
+    if has_in or has_out:
+        shown_in = str(tokens_in) if has_in else "not recorded"
+        shown_out = str(tokens_out) if has_out else "not recorded"
+        line += f", {shown_in} in, {shown_out} out"
+    cost = event.get("cost")
+    if isinstance(cost, (int, float)) and not isinstance(cost, bool):
+        line += f", about ${cost:.6f}"
+    return line
+
+
+def _number(value):
+    """A real number, or None. True and False are not counts."""
+    if isinstance(value, bool) or not isinstance(value, (int, float)):
+        return None
+    return value
+
+
+def format_summary(runs):
+    """Total time, total tokens, and how many runs fell in each failure class.
+
+    Time is the whole-run time, counted once per run. Tokens are summed
+    from the steps that recorded them. A run with no failure counts as none.
+    A run with two classes is counted in both. We do not invent a token
+    total when no step recorded usage.
+    """
+    total_ms = 0
+    tokens_in = 0
+    tokens_out = 0
+    saw_tokens = False
+    cost = 0.0
+    saw_cost = False
+    class_counts = {}
+    for events in runs:
+        if not events:
+            continue
+        ms = _number(events[-1].get("run_latency_ms"))
+        if ms is not None:
+            total_ms += ms
+        seen = set()
+        for event in events:
+            for name in trace.failure_names(event.get("failure")):
+                seen.add(name)
+            inn = _number(event.get("tokens_in"))
+            out = _number(event.get("tokens_out"))
+            if inn is not None:
+                tokens_in += inn
+                saw_tokens = True
+            if out is not None:
+                tokens_out += out
+                saw_tokens = True
+            step_cost = _number(event.get("cost"))
+            if step_cost is not None:
+                cost += step_cost
+                saw_cost = True
+        if not seen:
+            class_counts["none"] = class_counts.get("none", 0) + 1
+        else:
+            for name in seen:
+                class_counts[name] = class_counts.get(name, 0) + 1
+    lines = [
+        "Summary",
+        f"Total time: {total_ms / 1000:.1f} s ({int(total_ms)} ms)",
+    ]
+    if saw_tokens:
+        total_tokens = int(tokens_in) + int(tokens_out)
+        lines.append(
+            f"Total tokens: {total_tokens} ({int(tokens_in)} in, {int(tokens_out)} out)"
+        )
+    else:
+        lines.append("Total tokens: not recorded")
+    if saw_cost:
+        lines.append(f"Total estimated cost: ${cost:.6f}")
+    else:
+        lines.append("Total estimated cost: not recorded")
+    lines.append("Runs by failure class:")
+    if not class_counts:
+        lines.append("  (no runs)")
+    else:
+        for name in sorted(class_counts):
+            lines.append(f"  {name}  {class_counts[name]}")
+    return "\n".join(lines)
 
 
 def format_run(events):
@@ -234,11 +338,16 @@ def main(argv=None):
         action="store_true",
         help="Group failing runs by failure class and show the step that went wrong.",
     )
+    parser.add_argument(
+        "--summary",
+        action="store_true",
+        help="Print total time, total tokens, and the count of runs per failure class.",
+    )
     args = parser.parse_args(argv)
     if args.slowest is not None and args.slowest < 1:
         print("--slowest needs a number 1 or more.")
         return 2
-    if args.run_number is None and args.slowest is None and not args.failures:
+    if args.run_number is None and args.slowest is None and not args.failures and not args.summary:
         parser.print_help()
         return 2
     runs = load_runs(args.path)
@@ -259,6 +368,11 @@ def main(argv=None):
         if showed:
             print()
         print(format_slowest(runs, args.slowest))
+        showed = True
+    if args.summary:
+        if showed:
+            print()
+        print(format_summary(runs))
     return 0
 
 

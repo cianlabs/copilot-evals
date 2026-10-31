@@ -162,6 +162,21 @@ def action_text(record, loop_events):
     return ""
 
 
+def model_fields(note):
+    """Token fields from a real model call. A practice note has none of these.
+
+    cost is None when the response did not include usage. We do not fill it in.
+    """
+    if not isinstance(note, dict) or "model" not in note:
+        return {}
+    return {
+        "model": note.get("model"),
+        "tokens_in": note.get("tokens_in"),
+        "tokens_out": note.get("tokens_out"),
+        "cost": note.get("cost"),
+    }
+
+
 def events_from_run(record, notes, loop_events=None):
     """Build the step list for one finished question.
 
@@ -180,8 +195,8 @@ def events_from_run(record, notes, loop_events=None):
     agent_failure = record.get("failure")
     events = []
 
-    def add(node, latency_ms, inputs, tool_calls=None, tool_results=None, stop_reason=None, failure=None):
-        events.append({
+    def add(node, latency_ms, inputs, tool_calls=None, tool_results=None, stop_reason=None, failure=None, extra=None):
+        event = {
             "step": len(events) + 1,
             "node": node,
             "inputs": inputs,
@@ -190,23 +205,35 @@ def events_from_run(record, notes, loop_events=None):
             "stop_reason": stop_reason,
             "failure": pack_failure(failure),
             "latency_ms": max(0, int(latency_ms or 0)),
-        })
+        }
+        # Only a real model call has these. A practice step stays the old shape.
+        if extra:
+            event.update(extra)
+        events.append(event)
 
     # A model call that leads to a tool or an action is the plan.
     # A model call with nothing after it is the answer itself.
     used_models = 0
     if tools or action:
-        plan_ms = models[0].get("latency_ms") if models else 0
+        plan_note = models[0] if models else None
+        plan_ms = plan_note.get("latency_ms") if plan_note else 0
         used_models = 1 if models else 0
-        add("plan", plan_ms, {"question": question, "thought": thought})
+        add(
+            "plan",
+            plan_ms,
+            {"question": question, "thought": thought},
+            extra=model_fields(plan_note),
+        )
     elif agent_failure:
-        plan_ms = models[0].get("latency_ms") if models else 0
+        plan_note = models[0] if models else None
+        plan_ms = plan_note.get("latency_ms") if plan_note else 0
         used_models = 1 if models else 0
         add(
             "plan",
             plan_ms,
             {"question": question, "thought": thought},
             failure=[agent_failure],
+            extra=model_fields(plan_note),
         )
 
     for tool in tools:
@@ -234,9 +261,11 @@ def events_from_run(record, notes, loop_events=None):
             }],
         )
 
+    answer_note = None
     answer_ms = 0
     if len(models) > used_models:
-        answer_ms = models[used_models].get("latency_ms") or 0
+        answer_note = models[used_models]
+        answer_ms = answer_note.get("latency_ms") or 0
 
     already = []
     for event in events:
@@ -255,6 +284,7 @@ def events_from_run(record, notes, loop_events=None):
         {"question": question},
         stop_reason=record.get("stop_reason"),
         failure=answer_names,
+        extra=model_fields(answer_note),
     )
     return events
 
@@ -288,5 +318,13 @@ class Tracer:
                     "latency_ms": event["latency_ms"],
                     "run_latency_ms": run_ms,
                 }
+                # A real model call adds these. A practice step does not have them,
+                # so the old lines stay the same shape. cost stays null when the
+                # response had no usage.
+                if "model" in event:
+                    line["model"] = event.get("model")
+                    line["tokens_in"] = event.get("tokens_in")
+                    line["tokens_out"] = event.get("tokens_out")
+                    line["cost"] = event.get("cost")
                 safe = hide_secrets(drop_secret_fields(line))
                 handle.write(json.dumps(safe, ensure_ascii=False) + "\n")

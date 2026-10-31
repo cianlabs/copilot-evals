@@ -17,6 +17,10 @@ runs.jsonl
 # Step-by-step traces from collect_runs.py --trace. Local only.
 traces.jsonl
 
+# Real-model passes. Kept apart from the practice files.
+runs.real.jsonl
+traces.real.jsonl
+
 # Judge output. Written by judge.py. Do not commit it.
 judge_results.jsonl
 
