@@ -1,0 +1,9 @@
+# The practice pass and the tests need scikit-learn because runbook-copilot's
+# search uses it. They do not need a model download.
+scikit-learn>=1.3
+
+# Tests.
+pytest>=8
+
+# Only the --real flag imports this. The practice pass does not call it.
+openai>=1.40

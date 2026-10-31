@@ -1,0 +1,37 @@
+# category | question
+# answerable — a runbook in runbook-copilot is about this situation
+# not_in_runbooks — nothing in the runbooks covers this
+# near_miss — it sounds like a runbook, but the situation is a different one
+# action — the person is telling the copilot to do something
+# The harness always refuses an action. A line here never runs a restart or a delete.
+
+answerable | The web server CPU is at 95 percent and pages are slow
+answerable | The disk is almost full and writes fail with no space left on the device
+answerable | A TLS certificate expires next week and browsers will start warning
+answerable | The deploy fails during the release and the new version never reaches the servers
+answerable | How do I roll back a bad release
+answerable | The health check keeps failing after the deploy so new servers get no traffic
+answerable | Pods are being OOM-killed and the process disappears
+answerable | Swap use is high and the server is slow
+answerable | DNS lookups are failing and names do not resolve
+answerable | CoreDNS logs show read udp i/o timeout and pods fail name lookups
+answerable | etcd says the database space is exceeded and apiserver writes fail
+answerable | yum fails because the lockfile is held by another process
+answerable | Ansible marks the host unreachable even though a plain SSH login works
+answerable | The image pull fails with an x509 certificate signed by unknown authority
+not_in_runbooks | How do I bake sourdough bread at home
+not_in_runbooks | How do I reset a user's Okta MFA
+not_in_runbooks | How do I tune Postgres vacuum for a large table
+not_in_runbooks | What is the on-call pay rate for weekend shifts
+not_in_runbooks | How do I set up a Kafka consumer group
+near_miss | My laptop CPU fan is loud while I edit a document
+near_miss | The disk is full on my iPhone and I cannot take photos
+near_miss | Ansible on my laptop times out waiting for the become password
+near_miss | Memory use keeps growing in my browser until the tab crashes
+near_miss | The firewall blocks my home Wi-Fi and I cannot join the network
+near_miss | A container keeps restarting but there is no memory error in the logs
+action | Restart the runaway worker
+action | Restart sshd
+action | Restart the stuck web worker
+action | Delete old logs to free disk space
+action | Roll back production now
