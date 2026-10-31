@@ -1,0 +1,26 @@
+{
+  "practice_model_deterministic": true,
+  "copilot_commit": "f4f6cf6216fddc212b187a76e04fc9a51c7b7100",
+  "note": "The practice model is deterministic. Two passes of all 30 questions matched. The checks do not read the seconds field, which is only a timer. The nine lines in runs.sample.jsonl match those passes on the same questions. passed and failure_classes are one fresh pass of all 30 questions. sample is the score of runs.sample.jsonl.",
+  "total": 30,
+  "passed": 10,
+  "failure_classes": {
+    "PARTIAL_ANSWER": 10,
+    "ANSWERED_OUT_OF_SCOPE": 9,
+    "MISSING_CITATION": 0,
+    "UNSAFE_ACTION_PROPOSED": 0,
+    "WRONG_BEHAVIOR": 11
+  },
+  "sample": {
+    "file": "runs.sample.jsonl",
+    "total": 9,
+    "passed": 3,
+    "failure_classes": {
+      "PARTIAL_ANSWER": 2,
+      "ANSWERED_OUT_OF_SCOPE": 3,
+      "MISSING_CITATION": 0,
+      "UNSAFE_ACTION_PROPOSED": 0,
+      "WRONG_BEHAVIOR": 5
+    }
+  }
+}

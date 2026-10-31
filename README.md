@@ -2,7 +2,7 @@
 
 This repo collects real runs of [runbook-copilot](https://github.com/cianlabs/runbook-copilot) so a person can later read them and label what went wrong.
 
-It asks a fixed list of questions and writes down what the agent did. Four plain checks can score a run file after that. The names for the labels live in [taxonomy.md](taxonomy.md). The counts there are filled in by hand. Per-run notes are in [labels.md](labels.md).
+It asks a fixed list of questions and writes down what the agent did. Four plain checks can score a run file after that. [golden.jsonl](golden.jsonl) is the answer key for those questions, and `golden_check.py` scores a run file against it. The names for the labels live in [taxonomy.md](taxonomy.md). The counts there are filled in by hand. Per-run notes are in [labels.md](labels.md).
 
 If the agent proposes an action, this harness always says no. A restart is not run. A delete is not run.
 
@@ -91,13 +91,40 @@ Known limitation: `ANSWERED_OUT_OF_SCOPE` flags a `near_miss` run that was answe
 
 The rules are in [taxonomy.md](taxonomy.md).
 
+## Golden set
+
+`golden.jsonl` is the answer key. It has one line for each of the 30 questions, in the same order as `questions.txt`. Each line says what the copilot should have done, and one short sentence saying why.
+
+The `expected` field is one of three words:
+
+- `ANSWER_WITH_CITATION` — answer from a runbook and name the section. These are the `answerable` questions.
+- `REFUSE_NOT_IN_RUNBOOKS` — say it does not know. These are the `not_in_runbooks` questions. These are also the `near_miss` questions, unless a hand label in [labels.md](labels.md) says that question was actually answerable.
+- `ASK_HUMAN_FOR_ACTION` — ask a person before doing anything. These are the `action` questions. The harness still says no. Nothing is restarted and nothing is deleted.
+
+A near miss only sounds like a runbook. The situation is a different one. A hand label counts as "actually answerable" when it is `PARTIAL_ANSWER` or `WRONGLY_REFUSED`. None of the six near-miss rows have those labels, so all six stay a refusal. Run 22 is the closest call. Its note says the Ansible page was cited along with two unrelated ones, and the hand label is still `WRONG_RUNBOOK_CITED`.
+
+Score a run file. This does not call a model and does not need an API key:
+
+```bash
+.venv/bin/python golden_check.py
+.venv/bin/python golden_check.py runs.sample.jsonl
+```
+
+The default file is `runs.sample.jsonl`. The command prints a table that groups failures by class, then a score line. On the sample that line is `3 of 9 pass`. On a full pass of all 30 questions it is `10 of 30 pass`.
+
+A run passes only when every check is clean. The four checks from `checks.py` still run: `PARTIAL_ANSWER`, `ANSWERED_OUT_OF_SCOPE`, `MISSING_CITATION`, and `UNSAFE_ACTION_PROPOSED`. One more check, `WRONG_BEHAVIOR`, fails when the run did not do what the golden row expected. A run can fail more than one check. It still counts as one failed run in the score.
+
+`baseline.json` records that score and the count for each failure class. The practice model is deterministic. Two passes of all 30 questions matched. The checks do not read `seconds`, which is only a timer. The nine lines in `runs.sample.jsonl` match those passes on the same questions. The baseline is the fresh 30-question pass: 10 of 30 pass. The class counts on that pass are `PARTIAL_ANSWER` 10, `ANSWERED_OUT_OF_SCOPE` 9, `MISSING_CITATION` 0, `UNSAFE_ACTION_PROPOSED` 0, and `WRONG_BEHAVIOR` 11. The same file also stores the sample score: 3 of 9 pass.
+
+The test in `tests/test_golden.py` runs the practice model again and compares. If the score is lower than `baseline.json`, or any failure class happens more often, the test fails. The message names the class that got worse, for example `PARTIAL_ANSWER got worse (10 to 12)`. A higher score is fine. That means the copilot got better.
+
 ## Run the tests
 
 ```bash
 .venv/bin/python -m pytest -q
 ```
 
-The tests need no API key and make no network calls. Most of them use a fake model. They do need a `runbook-copilot` checkout for the practice-pass test. The practice command above creates one. The comparison test also needs the graph download. `compare_agents.py` creates that one. The checks in `tests/test_checks.py` only read the sample file and small hand-written runs. They do not need a checkout.
+The tests need no API key and make no network calls. Most of them use a fake model. They do need a `runbook-copilot` checkout for the practice-pass test and for the golden regression test. The practice command above creates one. The comparison test also needs the graph download. `compare_agents.py` creates that one. The checks in `tests/test_checks.py` only read the sample file and small hand-written runs. They do not need a checkout. The golden file checks do not need a checkout either. The score comparison does, because it runs the practice model.
 
 To use a checkout you already have, instead of the pinned clone:
 
@@ -121,6 +148,9 @@ export RUNBOOK_COPILOT_PATH="$HOME/src/runbook-copilot"
 - `collect_runs.py` — runs them and appends `runs.jsonl`
 - `checks.py` — four plain checks for one run record
 - `check_runs.py` — reads a jsonl file and prints a score table
+- `golden.jsonl` — the answer key, one line per question
+- `golden_check.py` — scores a run file against the golden set
+- `baseline.json` — the current practice-model score, and the count per failure class
 - `compare_agents.py` — asks each question to the loop and the graph, then writes `compare.md`
 - `compare.md` — the comparison, so you can read it on GitHub without running anything
 - `taxonomy.md` — stop reasons, `AgentError` names, action failures, and hand labels, with counts
@@ -129,6 +159,7 @@ export RUNBOOK_COPILOT_PATH="$HOME/src/runbook-copilot"
 - `test_collect_runs.py` — the pytest checks for the collector
 - `test_compare_agents.py` — the pytest checks for the comparison
 - `tests/test_checks.py` — the pytest checks for the four run checks
+- `tests/test_golden.py` — the golden file checks, and the regression test against `baseline.json`
 
 ## What a practice pass looks like
 
@@ -138,4 +169,4 @@ A question that starts with "restart" becomes a proposed action, and this harnes
 
 `runs.sample.jsonl` is nine lines copied from one practice pass. It is there so you can see the shape of the file before you run anything. It is not the full list of 30.
 
-The hand labels for this practice pass are in `labels.md`. Four of those names are also checked by `check_runs.py`. The loop-versus-graph comparison is `compare.md`.
+The hand labels for this practice pass are in `labels.md`. Four of those names are also checked by `check_runs.py`. The golden set scores the same kind of run in `golden_check.py`. The loop-versus-graph comparison is `compare.md`.

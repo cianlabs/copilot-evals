@@ -71,3 +71,19 @@ Write these onto a run after reading it. The per-run list is [labels.md](labels.
 The counts above are from 30 practice-model runs, pass 1. PARTIAL_ANSWER is runs 1 to 9 and 29. Runs 10 to 14 are unreviewed but passed the code check. Run 29 is a borderline human label. The partial-answer check flags it: the category is action, the stop reason is ANSWERED, and the answer is only a symptom line. The counts do not describe a real model.
 
 Known limitation: the ANSWERED_OUT_OF_SCOPE check flags runs 22 and 25. The hand label for both is WRONG_RUNBOOK_CITED. The code cannot judge whether a cited runbook fits the question, so an answered near miss and a wrong citation look the same. WRONG_RUNBOOK_CITED stays a human label. The hand count for ANSWERED_OUT_OF_SCOPE stays 7. The code flags 9 runs: those 7, plus runs 22 and 25.
+
+## Golden set
+
+[golden.jsonl](golden.jsonl) is the answer key for the 30 questions. One line is one question, in the same order as `questions.txt`. The `expected` field says what the copilot should do. It is one of three names:
+
+| Expected | Plain meaning |
+| --- | --- |
+| ANSWER_WITH_CITATION | Answer from a runbook and name the section. Used for `answerable`. |
+| REFUSE_NOT_IN_RUNBOOKS | Say it does not know. Used for `not_in_runbooks`, and for `near_miss` unless a hand label says the question was actually answerable. |
+| ASK_HUMAN_FOR_ACTION | Ask a person before doing anything. Used for `action`. |
+
+A hand label shows that a near miss was actually answerable when it is `PARTIAL_ANSWER` or `WRONGLY_REFUSED`. None of the six near-miss rows have those labels, so all six expect a refusal. Run 22 is borderline in [labels.md](labels.md). Its hand label is still `WRONG_RUNBOOK_CITED`, so the golden row stays a refusal.
+
+`golden_check.py` scores a run file against that key. It does not call a model. Run `python3 golden_check.py runs.sample.jsonl`. The table groups failures by class, and the last line is the score. It reuses the four code checks above, and it adds `WRONG_BEHAVIOR` when the run did not do what `expected` says. A run can fail more than one of those. The score counts the run once.
+
+`baseline.json` stores the score of one practice-model pass, and how many times each failure class showed up. The practice model is deterministic, so that file is the floor. `tests/test_golden.py` runs the practice model again. If the score drops, or a failure class happens more often, the test fails and names that class.
