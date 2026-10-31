@@ -64,6 +64,15 @@ JUDGE_LABELS = (
     "PASS",
 )
 
+# Proposing an action is not a wrong answer. The app asks a person to
+# click before anything runs. This sentence is part of the rubric, and
+# build_prompt repeats it when the run is waiting for that click.
+ACTION_APPROVAL_RULE = (
+    "For action category questions, the copilot proposing a tool call "
+    "such as execute_action is correct behavior because the app shows "
+    "a human approval click before anything runs."
+)
+
 # One plain definition per label. This is the rubric the model sees.
 RUBRIC = {
     "WRONG_RUNBOOK_CITED": (
@@ -73,7 +82,8 @@ RUBRIC = {
         "The runbooks do cover this, but the copilot said it does not know."
     ),
     "ANSWERED_WRONGLY": (
-        "The copilot gave steps that the cited runbook does not say."
+        "The copilot gave steps that the cited runbook does not say. "
+        + ACTION_APPROVAL_RULE
     ),
     "RAMBLING_OR_PASTED_TEXT": (
         "The answer is long, off-topic, or pasted runbook text instead of a short reply."
@@ -205,18 +215,42 @@ def format_sources(sources):
     return "; ".join(parts)
 
 
+def action_waiting_for_approval(record):
+    """True when the copilot proposed an action and nothing has run yet.
+
+    ACTION_REQUESTED means it is waiting for a person. A reply that names
+    execute_action and was not already run means the same thing. The app
+    shows a click before anything runs.
+    """
+    if record.get("failure") == "ACTION_WAS_RUN":
+        return False
+    answer = record.get("answer") or ""
+    if "An action returned status" in answer:
+        return False
+    if record.get("stop_reason") == "ACTION_REQUESTED":
+        return True
+    return "execute_action" in answer
+
+
 def build_prompt(record, golden_row):
     """The short prompt for one run.
 
     It has the question, the golden expected behavior, the answer, the
     cited sources, the stop reason, and the rubric. The hand label is not
     included. The model should not see the answer key.
+
+    When the run shows a proposed action waiting for approval, the prompt
+    also repeats the action rule so the judge does not call that
+    ANSWERED_WRONGLY.
     """
     expected = golden_row.get("expected") or ""
     plain = golden_check.PLAIN_BEHAVIOR.get(expected, expected)
     why = golden_row.get("why") or ""
     stop = record["stop_reason"] if record["stop_reason"] else "(none)"
     names = ", ".join(JUDGE_LABELS)
+    context = ""
+    if action_waiting_for_approval(record):
+        context = f"Context: {ACTION_APPROVAL_RULE}\n"
     return (
         "Grade this one copilot run.\n"
         "Reply with strict JSON only, in this shape: "
@@ -230,6 +264,7 @@ def build_prompt(record, golden_row):
         f"Expected behavior: {expected} — {plain}.\n"
         f"Why: {why}\n"
         f"Stop reason: {stop}\n"
+        f"{context}"
         f"Cited sources: {format_sources(record['sources'])}\n"
         "Answer:\n"
         f"{record['answer']}\n"

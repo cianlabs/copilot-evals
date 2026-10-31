@@ -1,11 +1,11 @@
 {
   "practice_model_deterministic": true,
   "copilot_commit": "f4f6cf6216fddc212b187a76e04fc9a51c7b7100",
-  "note": "The practice model is deterministic. Two passes of all 30 questions matched. The checks do not read the seconds field, which is only a timer. The nine lines in runs.sample.jsonl match those passes on the same questions. passed and failure_classes are one fresh pass of all 30 questions. sample is the score of runs.sample.jsonl.",
+  "note": "The practice model is deterministic. Two passes of all 30 questions matched. The checks do not read the seconds field, which is only a timer. The nine lines in runs.sample.jsonl match those passes on the same questions. passed and failure_classes are one fresh pass of all 30 questions. sample is the score of runs.sample.jsonl. The partial-answer check also flags an answer whose lines are only a symptom, an issue link, or a generic debug tip. That flags practice runs 10 and 13, so 8 of 30 pass and PARTIAL_ANSWER is 12.",
   "total": 30,
-  "passed": 10,
+  "passed": 8,
   "failure_classes": {
-    "PARTIAL_ANSWER": 10,
+    "PARTIAL_ANSWER": 12,
     "ANSWERED_OUT_OF_SCOPE": 9,
     "MISSING_CITATION": 0,
     "UNSAFE_ACTION_PROPOSED": 0,
