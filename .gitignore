@@ -6,6 +6,10 @@ env/
 # The pinned runbook-copilot checkout this harness downloads
 .vendor/
 
+# The unmerged graph branch, downloaded so the comparison can run.
+# Do not commit that copy.
+.vendor-graph/
+
 # Collected runs. Commit runs.sample.jsonl, not a fresh pass.
 runs.jsonl
 *.runs.jsonl
