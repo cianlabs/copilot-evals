@@ -8,7 +8,7 @@ compared with the golden row that has the same question.
     python3 golden_check.py runs.sample.jsonl
 
 The table groups failures by class. The last line is the score, such as
-"10 of 30 pass".
+"8 of 30 pass".
 
 A run passes only when every check is clean. The four checks in checks.py
 still run. One more check asks whether the run did what the golden row
@@ -228,7 +228,7 @@ def regression_message(summary, baseline):
     """None when the score held and no failure class got worse.
 
     Otherwise one sentence. It names each class whose count went up,
-    for example "PARTIAL_ANSWER got worse (10 to 12)".
+    for example "PARTIAL_ANSWER got worse (12 to 13)".
     A higher pass count is fine. A lower pass count is a regression.
     """
     current = summary["failure_classes"]

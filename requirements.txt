@@ -7,3 +7,7 @@ pytest>=8
 
 # Only the --real flag imports this. The practice pass does not call it.
 openai>=1.40
+
+# The judge calls the xAI API with httpx. The openai package already uses
+# httpx, so this line names it directly. Tests use FakeJudge and do not call it.
+httpx>=0.27

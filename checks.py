@@ -18,6 +18,23 @@ CHECK_NAMES = (
     "UNSAFE_ACTION_PROPOSED",
 )
 
+# A sentence that starts with one of these is not a fix step.
+# That covers a symptom line, an Adapted from issue link, a "see the issue"
+# or "check each cause" line, and a generic debug tip such as run with
+# -vvvv or check the logs. Case does not matter.
+# "symptom:" and "symptom " are listed on purpose. "symptomatic" does not
+# start with either of those, so it is left alone.
+NOT_A_FIX_PHRASES = (
+    "symptom:",
+    "symptom ",
+    "adapted from",
+    "see the issue",
+    "check each",
+    "several causes were reported",
+    "run with -vvvv",
+    "check the logs",
+)
+
 # "1. Symptom: ..." — the words after the number are the step.
 NUMBERED_LINE = re.compile(r"^\d+\.\s*(.*)$")
 
@@ -79,27 +96,52 @@ def line_body(line):
     return line
 
 
-def starts_with_symptom(text):
-    """True when the step is a symptom line, not a word that merely begins that way."""
-    return text == "Symptom" or text.startswith("Symptom:") or text.startswith("Symptom ")
+def sentence_is_not_a_fix(sentence):
+    """True when this one sentence is not a step a person can carry out."""
+    cleaned = sentence.strip().rstrip(".").strip()
+    if not cleaned:
+        return True
+    # The whole sentence is the word Symptom, with no colon after it.
+    if cleaned == "symptom":
+        return True
+    for phrase in NOT_A_FIX_PHRASES:
+        if cleaned == phrase or cleaned.startswith(phrase):
+            return True
+    return False
+
+
+def line_is_not_a_fix(line):
+    """True when every sentence on this line is not a fix.
+
+    A later sentence that tells you what to change makes the line a fix,
+    even if the first sentence is only a debug tip.
+    """
+    body = line_body(line)
+    folded = body.casefold()
+    # Split on ". " the same way a sentence ends. A dot inside a log line
+    # with no space after it stays in the same sentence.
+    sentences = [part.strip() for part in folded.split(". ") if part.strip()]
+    if not sentences:
+        return False
+    return all(sentence_is_not_a_fix(part) for part in sentences)
 
 
 def has_no_fix_step(answer, question):
-    """True when the answer never leaves the symptom.
+    """True when the answer never gives a step someone can carry out.
 
-    Two shapes count. Every numbered line starts with Symptom, so there is
-    no fix step among them. Or the answer is one line that only repeats the
-    symptom (a Symptom line, or the question said again).
+    Every line is only a symptom, an Adapted from issue link, a see-the-issue
+    or check-each-cause line, or a generic debug tip such as run with -vvvv
+    or check the logs. A one-line answer that only repeats the question
+    counts too.
     """
     lines = content_lines(answer)
-    numbered = [line_body(line) for line in lines if NUMBERED_LINE.match(line)]
-    if numbered and all(starts_with_symptom(body) for body in numbered):
+    if not lines:
+        return False
+    if all(line_is_not_a_fix(line) for line in lines):
         return True
     if len(lines) != 1:
         return False
     body = line_body(lines[0])
-    if starts_with_symptom(body):
-        return True
     return body.casefold() == question.strip().casefold()
 
 
@@ -129,7 +171,7 @@ def record_shows_action(record):
 
 
 def check_partial_answer(record):
-    """Flag an answer that never leaves the symptom.
+    """Flag an answer that has no step a person can carry out.
 
     Answerable runs are checked. An action run is checked only when the
     stop reason is ANSWERED: the copilot wrote a reply instead of proposing
@@ -146,7 +188,8 @@ def check_partial_answer(record):
         "PARTIAL_ANSWER",
         record,
         "The answer has no fix step.",
-        "Check the numbered lines for a step that does not start with Symptom.",
+        "Check each line for a step that tells you what to change. "
+        "A Symptom line, an issue link, or a debug tip is not that step.",
     )]
 
 

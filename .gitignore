@@ -16,6 +16,8 @@ runs.jsonl
 
 # Step-by-step traces from collect_runs.py --trace. Local only.
 traces.jsonl
+
+# Judge output. Written by judge.py. Do not commit it.
 judge_results.jsonl
 
 # Key and secret files

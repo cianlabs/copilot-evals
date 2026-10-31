@@ -1,6 +1,6 @@
 # Labels
 
-Cian labeled runs 2, 15, 16, 25, 26, 27 and 28 himself. The rest are drafts by Chief for Cian to review. Runs 22, 29 and 30 are borderline.
+Cian labeled runs 2, 10, 13, 15, 16, 25, 26, 27 and 28 himself. The rest are drafts by Chief for Cian to review. Runs 22, 29 and 30 are borderline.
 
 One row per run from the 30 practice-model runs, pass 1. Run number is the order in `questions.txt`. Stop reason names are in [taxonomy.md](taxonomy.md).
 
@@ -15,10 +15,10 @@ One row per run from the 30 practice-model runs, pass 1. Run number is the order
 | 7 | answerable | ANSWERED | PARTIAL_ANSWER | Right runbook, only the symptom line, no fix steps. |
 | 8 | answerable | ANSWERED | PARTIAL_ANSWER | Right runbook, only the symptom line, no fix steps. |
 | 9 | answerable | ANSWERED | PARTIAL_ANSWER | Answer is only symptom lines, no fix step (found by the code check). |
-| 10 | answerable | ANSWERED | unreviewed | Likely pass. Right runbooks, and they cite fix sections. |
+| 10 | answerable | ANSWERED | PARTIAL_ANSWER | Symptom line, an Adapted from GitHub issue link, and Several causes were reported so check each, with no fix. The code check missed it and the LLM judge flagged it. |
 | 11 | answerable | ANSWERED | unreviewed | Likely pass. Right runbooks, and they cite fix sections. |
 | 12 | answerable | ANSWERED | unreviewed | Likely pass. Right runbooks, and they cite fix sections. |
-| 13 | answerable | ANSWERED | unreviewed | Likely pass. Right runbooks, and they cite fix sections. |
+| 13 | answerable | ANSWERED | PARTIAL_ANSWER | Symptom line, an Adapted from GitHub issue link, and run with -vvvv, with no fix. The code check missed it and the LLM judge flagged it. |
 | 14 | answerable | ANSWERED | unreviewed | Likely pass. Right runbooks, and they cite fix sections. |
 | 15 | not_in_runbooks | NO_RELEVANT_RUNBOOK | pass | Said it does not know. |
 | 16 | not_in_runbooks | ANSWERED | ANSWERED_OUT_OF_SCOPE | Okta MFA question answered with an Ansible SSH tip. |

@@ -5,7 +5,7 @@ A starter list of names for this project. The **Count** column is a hand tally o
 Two kinds of names sit in one table:
 
 - **From the code.** `runbook-copilot` already raises or prints these. A collected run can show a stop reason, or a failure name when the loop raises.
-- **Hand label.** A person writes one of these while reading a run. `checks.py` flags four of them. The other four still need a person.
+- **Hand label.** A person writes one of these while reading a run. `checks.py` flags four of them. `judge.py` can grade the other four, and the hand label still wins.
 
 `ANSWERED` is the normal stop. It is listed so the names in the logs match this table. A run can be `ANSWERED` and still get a hand label such as `ANSWERED_WRONGLY`.
 
@@ -59,16 +59,16 @@ Write these onto a run after reading it. The per-run list is [labels.md](labels.
 | --- | --- | --- |
 | WRONG_RUNBOOK_CITED | The answer cites a section that is not about this question. | 2 |
 | MISSING_CITATION | The answer uses runbook facts but names no source. | 0 |
-| PARTIAL_ANSWER | The answer is on the right topic but leaves out an important step. | 10 |
+| PARTIAL_ANSWER | The answer is on the right topic but leaves out an important step. | 12 |
 | WRONGLY_REFUSED | The runbooks do cover this, but the copilot said it does not know. | 1 |
 | ANSWERED_WRONGLY | The copilot gave steps that the cited runbook does not say. | 0 |
 | ANSWERED_OUT_OF_SCOPE | The copilot answered a question the runbooks are not meant to cover. | 7 |
 | UNSAFE_ACTION_PROPOSED | The copilot proposed an action that should not have been offered. | 0 |
 | RAMBLING_OR_PASTED_TEXT | The answer is long, off-topic, or pasted runbook text instead of a short reply. | 0 |
 
-`checks.py` checks four of these names on a run record: PARTIAL_ANSWER, ANSWERED_OUT_OF_SCOPE, MISSING_CITATION, and UNSAFE_ACTION_PROPOSED. A person still has to judge WRONG_RUNBOOK_CITED, WRONGLY_REFUSED, ANSWERED_WRONGLY, and RAMBLING_OR_PASTED_TEXT. The code check does not call a model. It can disagree with the hand label in [labels.md](labels.md).
+`checks.py` checks four of these names on a run record: PARTIAL_ANSWER, ANSWERED_OUT_OF_SCOPE, MISSING_CITATION, and UNSAFE_ACTION_PROPOSED. The other four are WRONG_RUNBOOK_CITED, WRONGLY_REFUSED, ANSWERED_WRONGLY, and RAMBLING_OR_PASTED_TEXT. `judge.py` can grade those four. The hand label in [labels.md](labels.md) still wins when they disagree. The code check does not call a model. It can disagree with the hand label.
 
-The counts above are from 30 practice-model runs, pass 1. PARTIAL_ANSWER is runs 1 to 9 and 29. Runs 10 to 14 are unreviewed but passed the code check. Run 29 is a borderline human label. The partial-answer check flags it: the category is action, the stop reason is ANSWERED, and the answer is only a symptom line. The counts do not describe a real model.
+The counts above are hand labels. PARTIAL_ANSWER is 12: runs 1 to 10, 13, and 29. Run 29 is still borderline. Runs 11, 12, and 14 are unreviewed. The judge graded those three PASS. The partial-answer check flags an answer whose every line is only a symptom, an issue link, a check-each-cause line, or a generic debug tip. On the practice model that is the same 12 runs: 1 to 10, 13, and 29. Run 29 is an action question whose stop reason is ANSWERED and whose answer is only a symptom line. The counts do not describe a real model.
 
 Known limitation: the ANSWERED_OUT_OF_SCOPE check flags runs 22 and 25. The hand label for both is WRONG_RUNBOOK_CITED. The code cannot judge whether a cited runbook fits the question, so an answered near miss and a wrong citation look the same. WRONG_RUNBOOK_CITED stays a human label. The hand count for ANSWERED_OUT_OF_SCOPE stays 7. The code flags 9 runs: those 7, plus runs 22 and 25.
 
@@ -87,3 +87,15 @@ A hand label shows that a near miss was actually answerable when it is `PARTIAL_
 `golden_check.py` scores a run file against that key. It does not call a model. Run `python3 golden_check.py runs.sample.jsonl`. The table groups failures by class, and the last line is the score. It reuses the four code checks above, and it adds `WRONG_BEHAVIOR` when the run did not do what `expected` says. A run can fail more than one of those. The score counts the run once.
 
 `baseline.json` stores the score of one practice-model pass, and how many times each failure class showed up. The practice model is deterministic, so that file is the floor. `tests/test_golden.py` runs the practice model again. If the score drops, or a failure class happens more often, the test fails and names that class.
+
+## LLM-as-judge
+
+The four names the code cannot check are WRONG_RUNBOOK_CITED, WRONGLY_REFUSED, ANSWERED_WRONGLY, and RAMBLING_OR_PASTED_TEXT. `judge.py` asks a model to pick one of those, or PASS.
+
+Code checks come first. If `checks.py` already flagged the run, the judge skips it. That is the default. Runs 22 and 25 are in that skipped group, because the code calls them ANSWERED_OUT_OF_SCOPE. Their hand label is still WRONG_RUNBOOK_CITED. `--no-only-unflagged` grades them anyway.
+
+The model must reply with JSON: a label and one sentence. A reply that is not that JSON is named JUDGE_BAD_JSON. The raw text is kept. That is not a pass, and the program does not crash.
+
+The model can be wrong. The hand label in [labels.md](labels.md) is the truth when they disagree. Run `python3 judge_agreement.py judge_results.jsonl` and read the disagreements before you trust the judge. `pass` in the hand labels and `PASS` from the judge mean the same thing.
+
+The real call reads `XAI_API_KEY` from the environment. Do not put the key in a file. The tests use a fake judge and do not call a model. How to run it is in [README.md](README.md).

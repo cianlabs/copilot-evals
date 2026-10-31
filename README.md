@@ -2,7 +2,7 @@
 
 This repo collects real runs of [runbook-copilot](https://github.com/cianlabs/runbook-copilot) so a person can later read them and label what went wrong.
 
-It asks a fixed list of questions and writes down what the agent did. You can also save a trace of each step. That is explained in Tracing in simple words. Four plain checks can score a run file after that. [golden.jsonl](golden.jsonl) is the answer key for those questions, and `golden_check.py` scores a run file against it. The names for the labels live in [taxonomy.md](taxonomy.md). The counts there are filled in by hand. Per-run notes are in [labels.md](labels.md).
+It asks a fixed list of questions and writes down what the agent did. You can also save a trace of each step. That is explained in Tracing in simple words. Four plain checks can score a run file after that. `judge.py` asks a model about the four failures those checks cannot see. It skips runs the checks already flagged. [golden.jsonl](golden.jsonl) is the answer key for those questions, and `golden_check.py` scores a run file against it. The names for the labels live in [taxonomy.md](taxonomy.md). The counts there are filled in by hand. Per-run notes are in [labels.md](labels.md).
 
 If the agent proposes an action, this harness always says no. A restart is not run. A delete is not run.
 
@@ -154,11 +154,11 @@ The table lists each check, how many runs it flagged, and those run numbers. It 
 
 Checked by code: `PARTIAL_ANSWER`, `ANSWERED_OUT_OF_SCOPE`, `MISSING_CITATION`, `UNSAFE_ACTION_PROPOSED`.
 
-`PARTIAL_ANSWER` covers an answerable question. It also covers an action question when the stop reason is `ANSWERED` and the reply is only a symptom line, with no proposed action.
+`PARTIAL_ANSWER` covers an answerable question. It also covers an action question when the stop reason is `ANSWERED` and the reply has no fix step. A line is not a fix when it is only a symptom, an Adapted from issue link, a see-the-issue or check-each-cause line, or a generic debug tip such as run with -vvvv or check the logs.
 
-Still needs a person: `WRONG_RUNBOOK_CITED`, `WRONGLY_REFUSED`, `ANSWERED_WRONGLY`, `RAMBLING_OR_PASTED_TEXT`.
+The other four are graded by the LLM judge, not by these code checks: `WRONG_RUNBOOK_CITED`, `WRONGLY_REFUSED`, `ANSWERED_WRONGLY`, `RAMBLING_OR_PASTED_TEXT`. See [LLM-as-judge](#llm-as-judge).
 
-Known limitation: `ANSWERED_OUT_OF_SCOPE` flags a `near_miss` run that was answered. The code cannot judge whether a cited runbook fits the question. On the 30 practice runs, runs 22 and 25 are flagged by this check and hand-labeled `WRONG_RUNBOOK_CITED` in [labels.md](labels.md). Citing the wrong runbook stays a human label.
+Known limitation: `ANSWERED_OUT_OF_SCOPE` flags a `near_miss` run that was answered. The code cannot judge whether a cited runbook fits the question. On the 30 practice runs, runs 22 and 25 are flagged by this check and hand-labeled `WRONG_RUNBOOK_CITED` in [labels.md](labels.md). The code does not emit that name. The judge can grade it, and the hand label still wins.
 
 The rules are in [taxonomy.md](taxonomy.md).
 
@@ -181,13 +181,65 @@ Score a run file. This does not call a model and does not need an API key:
 .venv/bin/python golden_check.py runs.sample.jsonl
 ```
 
-The default file is `runs.sample.jsonl`. The command prints a table that groups failures by class, then a score line. On the sample that line is `3 of 9 pass`. On a full pass of all 30 questions it is `10 of 30 pass`.
+The default file is `runs.sample.jsonl`. The command prints a table that groups failures by class, then a score line. On the sample that line is `3 of 9 pass`. On a full pass of all 30 questions it is `8 of 30 pass`.
 
 A run passes only when every check is clean. The four checks from `checks.py` still run: `PARTIAL_ANSWER`, `ANSWERED_OUT_OF_SCOPE`, `MISSING_CITATION`, and `UNSAFE_ACTION_PROPOSED`. One more check, `WRONG_BEHAVIOR`, fails when the run did not do what the golden row expected. A run can fail more than one check. It still counts as one failed run in the score.
 
-`baseline.json` records that score and the count for each failure class. The practice model is deterministic. Two passes of all 30 questions matched. The checks do not read `seconds`, which is only a timer. The nine lines in `runs.sample.jsonl` match those passes on the same questions. The baseline is the fresh 30-question pass: 10 of 30 pass. The class counts on that pass are `PARTIAL_ANSWER` 10, `ANSWERED_OUT_OF_SCOPE` 9, `MISSING_CITATION` 0, `UNSAFE_ACTION_PROPOSED` 0, and `WRONG_BEHAVIOR` 11. The same file also stores the sample score: 3 of 9 pass.
+`baseline.json` records that score and the count for each failure class. The practice model is deterministic. Two passes of all 30 questions matched. The checks do not read `seconds`, which is only a timer. The nine lines in `runs.sample.jsonl` match those passes on the same questions. The baseline is the fresh 30-question pass: 8 of 30 pass. The class counts on that pass are `PARTIAL_ANSWER` 12, `ANSWERED_OUT_OF_SCOPE` 9, `MISSING_CITATION` 0, `UNSAFE_ACTION_PROPOSED` 0, and `WRONG_BEHAVIOR` 11. Runs 10 and 13 are in that partial count: each reply is a symptom, an issue link, and a debug tip, with no fix step. The same file also stores the sample score: 3 of 9 pass.
 
-The test in `tests/test_golden.py` runs the practice model again and compares. If the score is lower than `baseline.json`, or any failure class happens more often, the test fails. The message names the class that got worse, for example `PARTIAL_ANSWER got worse (10 to 12)`. A higher score is fine. That means the copilot got better.
+The test in `tests/test_golden.py` runs the practice model again and compares. If the score is lower than `baseline.json`, or any failure class happens more often, the test fails. The message names the class that got worse, for example `PARTIAL_ANSWER got worse (12 to 13)`. A higher score is fine. That means the copilot got better.
+
+## LLM-as-judge
+
+Some failures are easy to spot with plain code. `checks.py` does that first. It looks for a missing fix step, an out-of-scope answer, a missing citation, and an action that was not denied.
+
+Four failures are harder. The code cannot tell whether the cited runbook is the right one, whether a refusal was wrong, whether the steps contradict the runbook, or whether the answer is rambling. Those four are `WRONG_RUNBOOK_CITED`, `WRONGLY_REFUSED`, `ANSWERED_WRONGLY`, and `RAMBLING_OR_PASTED_TEXT`.
+
+`judge.py` asks a model to pick one of those, or `PASS`. It only asks about runs the code checks did not already flag. That is the default. Runs 22 and 25 are flagged by the code as `ANSWERED_OUT_OF_SCOPE`, so the judge skips them unless you add `--no-only-unflagged`. Their hand label is still `WRONG_RUNBOOK_CITED`.
+
+For an action question, proposing a tool call such as `execute_action` is correct. The app shows a human approval click before anything runs. The rubric says not to mark that proposed action as `ANSWERED_WRONGLY`.
+
+The model must reply with JSON: a `label` and a one-sentence `reason`. If the reply is not that JSON, the run is marked `JUDGE_BAD_JSON` and the raw text is kept. That is not a pass, and the program does not crash.
+
+Try it with no key and no model call:
+
+```bash
+.venv/bin/python judge.py runs.sample.jsonl --fake
+```
+
+`--fake` uses a stand-in that always says PASS. It is only for seeing the table. It is not a grade.
+
+To call the real model, read the key in the same command. Do not put the key in a file. The program reads `XAI_API_KEY` and does not print it. The quotes are there because the 1Password item name has a space:
+
+```bash
+XAI_API_KEY="$(op read 'op://Personal/xAI API Key/credential')" .venv/bin/python judge.py runs.jsonl
+```
+
+The model name comes from `JUDGE_MODEL`. If that is unset, the name is `grok-4`. You can change it.
+
+Ask the judge more than once. If it does not give the same label every time, that run is flaky:
+
+```bash
+.venv/bin/python judge.py runs.jsonl --passes 3
+```
+
+This writes `judge_results.jsonl`. That file is gitignored. Do not commit it.
+
+Then compare the judge to the hand labels. The hand labels win:
+
+```bash
+.venv/bin/python judge_agreement.py judge_results.jsonl
+```
+
+The command prints how many runs agree, lists the disagreements, and a short note. `pass` in [labels.md](labels.md) and `PASS` from the judge mean the same thing. Rows marked `unreviewed` are left out of the count. When they disagree, the label in `labels.md` is the truth.
+
+Limits, in plain words:
+
+- The judge can be wrong.
+- The hand labels win.
+- Check agreement before you trust the judge.
+- Code checks come first. The judge does not replace them.
+- A bad JSON reply is `JUDGE_BAD_JSON`, not a quiet pass.
 
 ## Run the tests
 
@@ -195,7 +247,7 @@ The test in `tests/test_golden.py` runs the practice model again and compares. I
 .venv/bin/python -m pytest -q
 ```
 
-The tests need no API key and make no network calls. Most of them use a fake model. They do need a `runbook-copilot` checkout for the practice-pass test and for the golden regression test. The practice command above creates one. The comparison test also needs the graph download. `compare_agents.py` creates that one. The checks in `tests/test_checks.py` only read the sample file and small hand-written runs. They do not need a checkout. The golden file checks do not need a checkout either. The score comparison does, because it runs the practice model.
+The tests need no API key and make no network calls. Most of them use a fake model. They do need a `runbook-copilot` checkout for the practice-pass test and for the golden regression test. The practice command above creates one. The comparison test also needs the graph download. `compare_agents.py` creates that one. The checks in `tests/test_checks.py` only read the sample file and small hand-written runs. They do not need a checkout. The golden file checks do not need a checkout either. The score comparison does, because it runs the practice model. The judge tests in `tests/test_judge.py` use a fake judge. They do not need a key, a model, or a checkout.
 
 To use a checkout you already have, instead of the pinned clone:
 
@@ -211,7 +263,7 @@ export RUNBOOK_COPILOT_PATH="$HOME/src/runbook-copilot"
 .venv/bin/python collect_runs.py --real
 ```
 
-`--real` reads `XAI_API_KEY` from the environment. Set the key in the terminal. Do not put it in a file. The harness never prints it, never logs it, and never writes it into `runs.jsonl`. If the key is missing, the command stops with `MISSING_KEY` and does not write a line per question.
+`--real` reads `XAI_API_KEY` from the environment. Set the key in the terminal. Do not put it in a file. The harness never prints it, never logs it, and never writes it into `runs.jsonl`. If the key is missing, the command stops with `MISSING_KEY` and does not write a line per question. The judge uses that same key. The [LLM-as-judge](#llm-as-judge) section shows the command.
 
 ## What each file is
 
@@ -233,8 +285,11 @@ export RUNBOOK_COPILOT_PATH="$HOME/src/runbook-copilot"
 - `runs.sample.jsonl` — a short slice of a practice pass
 - `test_collect_runs.py` — the pytest checks for the collector
 - `test_compare_agents.py` — the pytest checks for the comparison
+- `judge.py` — asks a model to grade the four failures the code checks cannot see
+- `judge_agreement.py` — compares the judge to the hand labels in `labels.md`
 - `tests/test_checks.py` — the pytest checks for the four run checks
 - `tests/test_golden.py` — the golden file checks, and the regression test against `baseline.json`
+- `tests/test_judge.py` — the pytest checks for the judge. They use a fake judge and do not call a model
 - `tests/test_trace.py` — the tracer, the story printer, and the retrieval math
 
 ## What a practice pass looks like
@@ -245,4 +300,4 @@ A question that starts with "restart" becomes a proposed action, and this harnes
 
 `runs.sample.jsonl` is nine lines copied from one practice pass. It is there so you can see the shape of the file before you run anything. It is not the full list of 30.
 
-The hand labels for this practice pass are in `labels.md`. Four of those names are also checked by `check_runs.py`. The golden set scores the same kind of run in `golden_check.py`. The loop-versus-graph comparison is `compare.md`.
+The hand labels for this practice pass are in `labels.md`. Four of those names are also checked by `check_runs.py`. The other four can be graded by `judge.py`. The golden set scores the same kind of run in `golden_check.py`. The loop-versus-graph comparison is `compare.md`.
