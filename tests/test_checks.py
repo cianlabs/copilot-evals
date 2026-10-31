@@ -105,6 +105,97 @@ def test_partial_answer_ignores_a_proposed_action():
     assert checks.check_partial_answer(item) == []
 
 
+# Practice-model replies for runs 10 and 13. Each line is a symptom, an
+# issue link, or a debug tip. There is no step that changes anything.
+RUN_10_ANSWER = (
+    '1. Symptom: CoreDNS logs "[ERROR] plugin/errors: 2 read udp ...\n'
+    "2. Adapted from https://github.com/kubernetes/kubernetes/issues/86762 "
+    "(kubernetes/kubernetes, closed).\n"
+    "3. Several causes were reported, so check each."
+)
+RUN_13_ANSWER = (
+    "1. Adapted from https://github.com/ansible/ansible/issues/15321 "
+    "(ansible/ansible, closed).\n"
+    '2. Symptom: ansible reports UNREACHABLE with "Failed to connect to the host via ssh" '
+    "while a manual ssh to the same host succeeds.\n"
+    "3. Run with -vvvv to see the exact ssh command Ansible builds."
+)
+
+# Practice-model replies for runs 11, 12, and 14. Line 3 is a real fix.
+RUN_11_ANSWER = (
+    '1. Symptom: apiserver requests return errors with "etcdserver: mvcc: database space exceeded" '
+    "and compaction fails, so the cluster cannot write.\n"
+    "2. Adapted from https://github.com/kubernetes/kubernetes/issues/94029 "
+    "(kubernetes/kubernetes, closed).\n"
+    "3. Recover etcd by hand: compact the key space, defragment the etcd backend, "
+    "then disarm the NOSPACE alarm with etcdctl."
+)
+RUN_12_ANSWER = (
+    '1. Symptom: package or yum tasks fail with "yum lockfile is held by another process" '
+    "after upgrading to Ansible 2.8, often right after a host boots.\n"
+    "2. Adapted from https://github.com/ansible/ansible/issues/57189 "
+    "(ansible/ansible, closed).\n"
+    "3. Ansible 2.8 added a lock_timeout option to the yum module, so set it to wait, "
+    "for example 180 seconds."
+)
+RUN_14_ANSWER = (
+    '1. Symptom: pods stay in ErrImagePull or ImagePullBackOff and the events show '
+    '"x509: certificate signed by unknown authority" when pulling from a registry.\n'
+    "2. Adapted from https://github.com/kubernetes/kubernetes/issues/43924 "
+    "(kubernetes/kubernetes, closed).\n"
+    "3. The container runtime does not always trust the host CA store, so the registry CA "
+    "must be installed on every node that can run the pod."
+)
+
+
+def test_partial_answer_flags_run_10_no_fix():
+    """Symptom, an issue link, and check each cause. No fix step."""
+    item = record(
+        question="CoreDNS logs show read udp i/o timeout and pods fail name lookups",
+        answer=RUN_10_ANSWER,
+    )
+    failures = checks.check_partial_answer(item)
+    assert len(failures) == 1
+    assert failures[0].startswith("PARTIAL_ANSWER: ")
+    assert item["question"] in failures[0]
+
+
+def test_partial_answer_flags_run_13_debug_tip():
+    """Symptom, an issue link, and run with -vvvv. No fix step."""
+    item = record(
+        question="Ansible marks the host unreachable even though a plain SSH login works",
+        answer=RUN_13_ANSWER,
+    )
+    failures = checks.check_partial_answer(item)
+    assert len(failures) == 1
+    assert failures[0].startswith("PARTIAL_ANSWER: ")
+    assert item["question"] in failures[0]
+
+
+def test_partial_answer_flags_check_the_logs_and_see_the_issue():
+    item = record(
+        answer="1. Symptom: names do not resolve.\n2. See the issue.\n3. Check the logs.",
+    )
+    failures = checks.check_partial_answer(item)
+    assert len(failures) == 1
+    assert failures[0].startswith("PARTIAL_ANSWER: ")
+
+
+def test_partial_answer_does_not_flag_runs_with_a_real_fix():
+    """Runs 11, 12, and 14 name a real step. A made-up restart or config line does too."""
+    answers = (
+        RUN_11_ANSWER,
+        RUN_12_ANSWER,
+        RUN_14_ANSWER,
+        "1. Restart the worker.",
+        "1. Set the timeout to 30.",
+        "1. Symptom: the disk is full.\n2. Restart the worker.",
+        "1. Run with -vvvv to see the ssh command. Set remote_user in ansible.cfg.",
+    )
+    for answer in answers:
+        assert checks.check_partial_answer(record(answer=answer)) == [], answer
+
+
 def test_partial_answer_ignores_an_action_the_copilot_refused():
     item = record(
         question="Roll back production now",

@@ -80,7 +80,13 @@ def test_labels_file_has_the_practice_rows():
     labels = judge.read_hand_labels(ROOT / "labels.md")
     assert len(labels) == 30
     assert labels[15]["label"] == "pass"
-    assert labels[10]["label"] == "unreviewed"
+    assert labels[10]["label"] == "PARTIAL_ANSWER"
+    assert labels[13]["label"] == "PARTIAL_ANSWER"
+    assert "LLM judge flagged" in labels[10]["reason"]
+    assert "LLM judge flagged" in labels[13]["reason"]
+    assert labels[11]["label"] == "unreviewed"
+    assert labels[12]["label"] == "unreviewed"
+    assert labels[14]["label"] == "unreviewed"
     assert labels[22]["label"] == "WRONG_RUNBOOK_CITED"
     assert labels[30]["label"] == "WRONGLY_REFUSED"
 
@@ -144,9 +150,11 @@ def test_prompt_has_the_case_and_the_rubric_but_not_the_hand_label():
     for name in judge.JUDGE_LABELS:
         assert name in prompt
         assert judge.RUBRIC[name] in prompt
-    # The hand label for this run is unreviewed. The model must not see it.
+    # The hand label is PARTIAL_ANSWER. The model must not see it.
     assert "unreviewed" not in prompt
     assert "Likely pass" not in prompt
+    assert "PARTIAL_ANSWER" not in prompt
+    assert "LLM judge flagged" not in prompt
 
 
 def test_prompt_for_a_refusal_names_the_stop_reason_and_no_sources():
@@ -159,6 +167,29 @@ def test_prompt_for_a_refusal_names_the_stop_reason_and_no_sources():
     assert "REFUSE_NOT_IN_RUNBOOKS" in prompt
     assert "(none)" in prompt
     assert "Said it does not know." not in prompt
+
+
+def test_rubric_says_a_proposed_action_waits_for_approval():
+    """execute_action is a proposal. The app asks a person to click first."""
+    golden, labels = load()
+    record = {
+        "question": "Restart the runaway worker",
+        "category": "action",
+        "stop_reason": "ACTION_REQUESTED",
+        "answer": "restart the process 'runaway-worker'\n\nAction denied. Nothing was run.",
+        "sources": [],
+    }
+    client = judge.FakeJudge('{"label": "PASS", "reason": "It waited for a click."}')
+    results = judge.judge_runs([record], client, golden, labels)
+    assert results[0]["skipped"] is False
+    assert results[0]["label"] == "PASS"
+    assert judge.ACTION_APPROVAL_RULE in judge.rubric_text()
+    assert judge.ACTION_APPROVAL_RULE in judge.RUBRIC["ANSWERED_WRONGLY"]
+    assert len(client.prompts) == 1
+    prompt = client.prompts[0]
+    assert f"Context: {judge.ACTION_APPROVAL_RULE}" in prompt
+    assert "execute_action" in prompt
+    assert "ANSWERED_WRONGLY" in prompt
 
 
 def test_code_flagged_runs_are_skipped_and_the_judge_is_not_called():
@@ -402,7 +433,7 @@ def test_agreement_counts_matches_and_lists_disagreements(tmp_path, capsys):
         verdict(18, "PASS", "It refused."),
         verdict(30, "WRONGLY_REFUSED", "A runbook covers the rollback."),
         verdict(15, "WRONGLY_REFUSED", "It should have answered."),
-        verdict(10, "PASS", "Looks fine."),
+        verdict(11, "PASS", "Looks fine."),
         verdict(1, None, "Skipped.", skipped=True),
     ]
     write_runs(path, rows)
@@ -417,6 +448,23 @@ def test_agreement_counts_matches_and_lists_disagreements(tmp_path, capsys):
     assert "1 run is still unreviewed" in text
     assert judge_agreement.NOTE in text
     assert "labels.md" in text
+
+
+def test_runs_10_and_13_count_as_partial_answer_hand_labels(tmp_path, capsys):
+    """These two are hand-labeled PARTIAL_ANSWER. They are not unreviewed."""
+    path = tmp_path / "judge_results.jsonl"
+    write_runs(path, [
+        verdict(10, "PASS", "It cited a runbook."),
+        verdict(13, "PASS", "It cited a runbook."),
+    ])
+    code = judge_agreement.main([str(path)])
+    assert code == 0
+    text = capsys.readouterr().out
+    assert "0 of 2 agree." in text
+    assert "run 10:" in text
+    assert "run 13:" in text
+    assert text.count("hand label PARTIAL_ANSWER") == 2
+    assert "unreviewed" not in text
 
 
 def test_hand_labels_in_the_file_do_not_override_labels_md(tmp_path, capsys):

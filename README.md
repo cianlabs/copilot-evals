@@ -83,7 +83,7 @@ The table lists each check, how many runs it flagged, and those run numbers. It 
 
 Checked by code: `PARTIAL_ANSWER`, `ANSWERED_OUT_OF_SCOPE`, `MISSING_CITATION`, `UNSAFE_ACTION_PROPOSED`.
 
-`PARTIAL_ANSWER` covers an answerable question. It also covers an action question when the stop reason is `ANSWERED` and the reply is only a symptom line, with no proposed action.
+`PARTIAL_ANSWER` covers an answerable question. It also covers an action question when the stop reason is `ANSWERED` and the reply has no fix step. A line is not a fix when it is only a symptom, an Adapted from issue link, a see-the-issue or check-each-cause line, or a generic debug tip such as run with -vvvv or check the logs.
 
 The other four are graded by the LLM judge, not by these code checks: `WRONG_RUNBOOK_CITED`, `WRONGLY_REFUSED`, `ANSWERED_WRONGLY`, `RAMBLING_OR_PASTED_TEXT`. See [LLM-as-judge](#llm-as-judge).
 
@@ -110,13 +110,13 @@ Score a run file. This does not call a model and does not need an API key:
 .venv/bin/python golden_check.py runs.sample.jsonl
 ```
 
-The default file is `runs.sample.jsonl`. The command prints a table that groups failures by class, then a score line. On the sample that line is `3 of 9 pass`. On a full pass of all 30 questions it is `10 of 30 pass`.
+The default file is `runs.sample.jsonl`. The command prints a table that groups failures by class, then a score line. On the sample that line is `3 of 9 pass`. On a full pass of all 30 questions it is `8 of 30 pass`.
 
 A run passes only when every check is clean. The four checks from `checks.py` still run: `PARTIAL_ANSWER`, `ANSWERED_OUT_OF_SCOPE`, `MISSING_CITATION`, and `UNSAFE_ACTION_PROPOSED`. One more check, `WRONG_BEHAVIOR`, fails when the run did not do what the golden row expected. A run can fail more than one check. It still counts as one failed run in the score.
 
-`baseline.json` records that score and the count for each failure class. The practice model is deterministic. Two passes of all 30 questions matched. The checks do not read `seconds`, which is only a timer. The nine lines in `runs.sample.jsonl` match those passes on the same questions. The baseline is the fresh 30-question pass: 10 of 30 pass. The class counts on that pass are `PARTIAL_ANSWER` 10, `ANSWERED_OUT_OF_SCOPE` 9, `MISSING_CITATION` 0, `UNSAFE_ACTION_PROPOSED` 0, and `WRONG_BEHAVIOR` 11. The same file also stores the sample score: 3 of 9 pass.
+`baseline.json` records that score and the count for each failure class. The practice model is deterministic. Two passes of all 30 questions matched. The checks do not read `seconds`, which is only a timer. The nine lines in `runs.sample.jsonl` match those passes on the same questions. The baseline is the fresh 30-question pass: 8 of 30 pass. The class counts on that pass are `PARTIAL_ANSWER` 12, `ANSWERED_OUT_OF_SCOPE` 9, `MISSING_CITATION` 0, `UNSAFE_ACTION_PROPOSED` 0, and `WRONG_BEHAVIOR` 11. Runs 10 and 13 are in that partial count: each reply is a symptom, an issue link, and a debug tip, with no fix step. The same file also stores the sample score: 3 of 9 pass.
 
-The test in `tests/test_golden.py` runs the practice model again and compares. If the score is lower than `baseline.json`, or any failure class happens more often, the test fails. The message names the class that got worse, for example `PARTIAL_ANSWER got worse (10 to 12)`. A higher score is fine. That means the copilot got better.
+The test in `tests/test_golden.py` runs the practice model again and compares. If the score is lower than `baseline.json`, or any failure class happens more often, the test fails. The message names the class that got worse, for example `PARTIAL_ANSWER got worse (12 to 13)`. A higher score is fine. That means the copilot got better.
 
 ## LLM-as-judge
 
@@ -125,6 +125,8 @@ Some failures are easy to spot with plain code. `checks.py` does that first. It 
 Four failures are harder. The code cannot tell whether the cited runbook is the right one, whether a refusal was wrong, whether the steps contradict the runbook, or whether the answer is rambling. Those four are `WRONG_RUNBOOK_CITED`, `WRONGLY_REFUSED`, `ANSWERED_WRONGLY`, and `RAMBLING_OR_PASTED_TEXT`.
 
 `judge.py` asks a model to pick one of those, or `PASS`. It only asks about runs the code checks did not already flag. That is the default. Runs 22 and 25 are flagged by the code as `ANSWERED_OUT_OF_SCOPE`, so the judge skips them unless you add `--no-only-unflagged`. Their hand label is still `WRONG_RUNBOOK_CITED`.
+
+For an action question, proposing a tool call such as `execute_action` is correct. The app shows a human approval click before anything runs. The rubric says not to mark that proposed action as `ANSWERED_WRONGLY`.
 
 The model must reply with JSON: a `label` and a one-sentence `reason`. If the reply is not that JSON, the run is marked `JUDGE_BAD_JSON` and the raw text is kept. That is not a pass, and the program does not crash.
 
