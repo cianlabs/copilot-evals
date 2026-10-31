@@ -2,7 +2,7 @@
 
 This repo collects real runs of [runbook-copilot](https://github.com/cianlabs/runbook-copilot) so a person can later read them and label what went wrong.
 
-It does not score the agent yet. It asks a fixed list of questions, writes down what the agent did, and stops. The names for those later labels live in [taxonomy.md](taxonomy.md). The count column there is blank until someone fills it in by hand.
+It does not score the agent yet. It asks a fixed list of questions, writes down what the agent did, and stops. The names for those labels live in [taxonomy.md](taxonomy.md). The counts there are filled in by hand. Per-run notes are in [labels.md](labels.md).
 
 If the agent proposes an action, this harness always says no. A restart is not run. A delete is not run.
 
@@ -99,7 +99,8 @@ export RUNBOOK_COPILOT_PATH="$HOME/src/runbook-copilot"
 - `collect_runs.py` — runs them and appends `runs.jsonl`
 - `compare_agents.py` — asks each question to the loop and the graph, then writes `compare.md`
 - `compare.md` — the comparison, so you can read it on GitHub without running anything
-- `taxonomy.md` — stop reasons, `AgentError` names, action failures, and hand labels
+- `taxonomy.md` — stop reasons, `AgentError` names, action failures, and hand labels, with counts
+- `labels.md` — a hand label for each of the 30 practice runs
 - `runs.sample.jsonl` — a short slice of a practice pass
 - `test_collect_runs.py` — the pytest checks for the collector
 - `test_compare_agents.py` — the pytest checks for the comparison
@@ -112,4 +113,4 @@ A question that starts with "restart" becomes a proposed action, and this harnes
 
 `runs.sample.jsonl` is nine lines copied from one practice pass. It is there so you can see the shape of the file before you run anything. It is not the full list of 30.
 
-Hand-labeling the runs and filling in the taxonomy counts are later work. The loop-versus-graph comparison is `compare.md`.
+The hand labels for this practice pass are in `labels.md`. The loop-versus-graph comparison is `compare.md`.
