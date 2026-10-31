@@ -14,6 +14,10 @@ env/
 runs.jsonl
 *.runs.jsonl
 
+# Step-by-step traces from collect_runs.py --trace. Local only.
+traces.jsonl
+judge_results.jsonl
+
 # Key and secret files
 .env
 .env.*

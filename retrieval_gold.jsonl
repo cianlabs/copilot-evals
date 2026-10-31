@@ -1,0 +1,8 @@
+{"id": 1, "question": "The web server CPU is at 95 percent and pages are slow", "expected_runbook": "sample_runbook.txt", "expected_section": "High CPU on web servers"}
+{"id": 2, "question": "The disk is almost full and writes fail with no space left on the device", "expected_runbook": "sample_runbook.txt", "expected_section": "Disk space almost full"}
+{"id": 4, "question": "The deploy fails during the release and the new version never reaches the servers", "expected_runbook": "deployment_failures.txt", "expected_section": "Deploy fails during release"}
+{"id": 10, "question": "CoreDNS logs show read udp i/o timeout and pods fail name lookups", "expected_runbook": "incident_005_coredns-io-timeout.txt"}
+{"id": 11, "question": "etcd says the database space is exceeded and apiserver writes fail", "expected_runbook": "incident_006_etcd-space-exceeded.txt"}
+{"id": 12, "question": "yum fails because the lockfile is held by another process", "expected_runbook": "incident_013_ansible-yum-lockfile.txt"}
+{"id": 13, "question": "Ansible marks the host unreachable even though a plain SSH login works", "expected_runbook": "incident_009_ansible-ssh-unreachable.txt"}
+{"id": 14, "question": "The image pull fails with an x509 certificate signed by unknown authority", "expected_runbook": "incident_001_k8s-image-pull-x509.txt"}

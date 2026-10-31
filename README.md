@@ -2,7 +2,7 @@
 
 This repo collects real runs of [runbook-copilot](https://github.com/cianlabs/runbook-copilot) so a person can later read them and label what went wrong.
 
-It asks a fixed list of questions and writes down what the agent did. Four plain checks can score a run file after that. [golden.jsonl](golden.jsonl) is the answer key for those questions, and `golden_check.py` scores a run file against it. The names for the labels live in [taxonomy.md](taxonomy.md). The counts there are filled in by hand. Per-run notes are in [labels.md](labels.md).
+It asks a fixed list of questions and writes down what the agent did. You can also save a trace of each step. That is explained in Tracing in simple words. Four plain checks can score a run file after that. [golden.jsonl](golden.jsonl) is the answer key for those questions, and `golden_check.py` scores a run file against it. The names for the labels live in [taxonomy.md](taxonomy.md). The counts there are filled in by hand. Per-run notes are in [labels.md](labels.md).
 
 If the agent proposes an action, this harness always says no. A restart is not run. A delete is not run.
 
@@ -25,6 +25,8 @@ Ask every question more than once:
 ```bash
 .venv/bin/python collect_runs.py --passes 3
 ```
+
+To also write a step-by-step trace, add `--trace`. See Tracing in simple words below.
 
 ## Compare the loop and the graph
 
@@ -68,6 +70,75 @@ Fields on each line:
 | seconds | How long that question took |
 | failure | The `AgentError` name if the loop raised, otherwise `null`. A retrieve failure is stored under its own name too |
 | pass_number | `1` the first time through the list. Higher when you use `--passes` |
+
+## Tracing in simple words
+
+A trace is a diary of one question. Each step is one line in `traces.jsonl`. The lines of one run share a short id, so they stay together. The run number is the same number as that line in `runs.jsonl`. Run 13 in the trace is run 13 in the runs file, when both files came from the same pass.
+
+The picture below is the loop the practice model walks. Plan, then search, then answer. A restart command has an action step instead of a search. This harness still says no. Nothing is restarted.
+
+```
+        question
+           |
+           v
+     +----------+      +----------+      +----------+
+     |   plan   | ---> |  search  | ---> |  answer  |
+     +----------+      +----------+      +----------+
+           |                |                  |
+           +----------------+------------------+
+                            |
+                            v
+                      traces.jsonl
+                  (one line per step)
+```
+
+Make a trace with the practice model. This does not call a model on the internet and does not need an API key:
+
+```bash
+.venv/bin/python collect_runs.py --trace
+```
+
+That writes `runs.jsonl` as usual, and `traces.jsonl` next to it. Without `--trace`, the runs file is unchanged and no trace file is written. Delete both files if you want a fresh pass. Both files are listed in `.gitignore`. Do not commit them.
+
+Read one run:
+
+```bash
+python show_trace.py traces.jsonl 13
+```
+
+You get a short story. Step 1 is the plan. Step 2 is the search, including how many runbooks came back and their scores. Step 3 is the answer, with the stop reason. If the checks in `checks.py` flag the run, the story names that failure class and the step where it went wrong. Each step shows how many milliseconds it took, and the story ends with the time for the whole run.
+
+Two more ways to read the file:
+
+```bash
+python show_trace.py traces.jsonl --slowest 5
+python show_trace.py traces.jsonl --failures
+```
+
+`--slowest 5` lists the five runs that took the longest. `--failures` groups the failing runs by failure class, and names the step where that run went wrong.
+
+The failure class reuses a name from `checks.py`, such as `PARTIAL_ANSWER`, when those checks flag the answer. If the loop raises, the class is that error name, the same one `runs.jsonl` stores in `failure`. The stop reason stays its own field. `ANSWERED` can still carry `PARTIAL_ANSWER`. The answer was written, and the check still found no fix step.
+
+A small retrieval score sits beside the trace, because a trace shows what search returned and this asks a narrower question. For a few answerable questions, was the right runbook in the top 5 hits?
+
+`golden.jsonl` does not name the right runbook, so `retrieval_gold.jsonl` adds an optional `expected_runbook` on a new file. There are 8 rows. They were picked from questions whose practice-model answer cites a runbook that obviously matches, using `runs.sample.jsonl` and one practice pass. Some rows also name a section, because that file holds more than one topic. `sample_runbook.txt` is one of those files.
+
+```bash
+.venv/bin/python retrieval_score.py
+```
+
+It prints recall at 5 and MRR. Recall at 5 is the share of these questions where the right runbook was in the first 5 search hits. MRR (mean reciprocal rank) is stricter. First place scores 1, second place scores 1/2, third place scores 1/3, and a miss scores 0. MRR is the average of those scores. This is a tiny starter set, not a full measure. A perfect score only means search found these obvious runbooks. It does not grade the other questions.
+
+Honest limits:
+
+- The trace is a file on this machine. There is no account, no Langfuse, and no paid service.
+- It does not call a model on the internet. The command above uses the practice model.
+- The trace never stores an API key or environment variables. It stores runbook titles and scores, not the page text.
+- Step times are the model call and the search. The whole-run time is the same clock as `seconds` in `runs.jsonl`. Adding the step times may not equal the whole run, because the loop does a little more work in between.
+- The vendored loop does not hand over every score, or a timer for each step. `--trace` wraps the search tool and the model call inside `collect_runs.py`. The runbook-copilot code is not edited. The wrappers call the real functions and return the same values. Without `--trace`, those wrappers are not installed.
+- Run numbers match line numbers in that `runs.jsonl`. If you append another pass, the numbers keep going. Delete both files to start again.
+- For a restart command, the story shows a plan and a refused action. It does not show a search. The practice model does not search before a restart.
+- `retrieval_gold.jsonl` has 8 easy questions. It is not a full test of search.
 
 ## Check a run file
 
@@ -145,7 +216,11 @@ export RUNBOOK_COPILOT_PATH="$HOME/src/runbook-copilot"
 ## What each file is
 
 - `questions.txt` — 30 starter questions, written as `category | question`
-- `collect_runs.py` — runs them and appends `runs.jsonl`
+- `collect_runs.py` — runs them and appends `runs.jsonl`. `--trace` also appends `traces.jsonl`
+- `trace.py` — the small tracer that writes one JSON line per step
+- `show_trace.py` — prints one trace as a short story
+- `retrieval_gold.jsonl` — 8 obvious questions and the runbook each answer should come from
+- `retrieval_score.py` — recall at 5 and MRR for that tiny starter set
 - `checks.py` — four plain checks for one run record
 - `check_runs.py` — reads a jsonl file and prints a score table
 - `golden.jsonl` — the answer key, one line per question
@@ -160,6 +235,7 @@ export RUNBOOK_COPILOT_PATH="$HOME/src/runbook-copilot"
 - `test_compare_agents.py` — the pytest checks for the comparison
 - `tests/test_checks.py` — the pytest checks for the four run checks
 - `tests/test_golden.py` — the golden file checks, and the regression test against `baseline.json`
+- `tests/test_trace.py` — the tracer, the story printer, and the retrieval math
 
 ## What a practice pass looks like
 
