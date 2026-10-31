@@ -59,7 +59,7 @@ Write these onto a run after reading it. The per-run list is [labels.md](labels.
 | --- | --- | --- |
 | WRONG_RUNBOOK_CITED | The answer cites a section that is not about this question. | 2 |
 | MISSING_CITATION | The answer uses runbook facts but names no source. | 0 |
-| PARTIAL_ANSWER | The answer is on the right topic but leaves out an important step. | 9 |
+| PARTIAL_ANSWER | The answer is on the right topic but leaves out an important step. | 10 |
 | WRONGLY_REFUSED | The runbooks do cover this, but the copilot said it does not know. | 1 |
 | ANSWERED_WRONGLY | The copilot gave steps that the cited runbook does not say. | 0 |
 | ANSWERED_OUT_OF_SCOPE | The copilot answered a question the runbooks are not meant to cover. | 7 |
@@ -68,4 +68,6 @@ Write these onto a run after reading it. The per-run list is [labels.md](labels.
 
 `checks.py` checks four of these names on a run record: PARTIAL_ANSWER, ANSWERED_OUT_OF_SCOPE, MISSING_CITATION, and UNSAFE_ACTION_PROPOSED. A person still has to judge WRONG_RUNBOOK_CITED, WRONGLY_REFUSED, ANSWERED_WRONGLY, and RAMBLING_OR_PASTED_TEXT. The code check does not call a model. It can disagree with the hand label in [labels.md](labels.md).
 
-The counts above are from 30 practice-model runs, pass 1. Runs 9 to 14 are unreviewed and likely correct. The counts do not describe a real model.
+The counts above are from 30 practice-model runs, pass 1. PARTIAL_ANSWER is runs 1 to 9 and 29. Runs 10 to 14 are unreviewed but passed the code check. Run 29 is a borderline human label. The partial-answer check flags it: the category is action, the stop reason is ANSWERED, and the answer is only a symptom line. The counts do not describe a real model.
+
+Known limitation: the ANSWERED_OUT_OF_SCOPE check flags runs 22 and 25. The hand label for both is WRONG_RUNBOOK_CITED. The code cannot judge whether a cited runbook fits the question, so an answered near miss and a wrong citation look the same. WRONG_RUNBOOK_CITED stays a human label. The hand count for ANSWERED_OUT_OF_SCOPE stays 7. The code flags 9 runs: those 7, plus runs 22 and 25.

@@ -83,7 +83,11 @@ The table lists each check, how many runs it flagged, and those run numbers. It 
 
 Checked by code: `PARTIAL_ANSWER`, `ANSWERED_OUT_OF_SCOPE`, `MISSING_CITATION`, `UNSAFE_ACTION_PROPOSED`.
 
+`PARTIAL_ANSWER` covers an answerable question. It also covers an action question when the stop reason is `ANSWERED` and the reply is only a symptom line, with no proposed action.
+
 Still needs a person: `WRONG_RUNBOOK_CITED`, `WRONGLY_REFUSED`, `ANSWERED_WRONGLY`, `RAMBLING_OR_PASTED_TEXT`.
+
+Known limitation: `ANSWERED_OUT_OF_SCOPE` flags a `near_miss` run that was answered. The code cannot judge whether a cited runbook fits the question. On the 30 practice runs, runs 22 and 25 are flagged by this check and hand-labeled `WRONG_RUNBOOK_CITED` in [labels.md](labels.md). Citing the wrong runbook stays a human label.
 
 The rules are in [taxonomy.md](taxonomy.md).
 
