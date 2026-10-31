@@ -14,6 +14,9 @@ env/
 runs.jsonl
 *.runs.jsonl
 
+# Judge output. Written by judge.py. Do not commit it.
+judge_results.jsonl
+
 # Key and secret files
 .env
 .env.*
