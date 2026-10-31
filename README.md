@@ -26,6 +26,22 @@ Ask every question more than once:
 .venv/bin/python collect_runs.py --passes 3
 ```
 
+## Compare the loop and the graph
+
+The old copilot walks in a loop (`run_agent` in `agent.py`). A newer copy walks a picture of boxes (`run_graph` in `graph_agent.py`). That newer copy is on the branch `cursor/graph-agent-loop-86f9` of runbook-copilot. The branch is not merged.
+
+This command asks all 30 questions to both versions and writes `compare.md`:
+
+```bash
+.venv/bin/python compare_agents.py
+```
+
+The first run downloads that branch into `.vendor-graph/`. Git ignores that folder. The download is the agent code, not a call to a model. After that, the same command reuses the download.
+
+It uses the same practice rules as `collect_runs.py`: the practice model, no API key, no model network call, every proposed action declined, and logging turned off. Running it again replaces `compare.md`.
+
+Open `compare.md` to see the counts, one row per question, and a short note for any question where the two versions did not match.
+
 ## Open a run
 
 `runs.jsonl` is plain text. One run is one line of JSON.
@@ -59,7 +75,7 @@ Fields on each line:
 .venv/bin/python -m pytest -q
 ```
 
-The tests use a fake model. They need no API key and make no network calls. They do need a `runbook-copilot` checkout. The practice command above creates one.
+The tests need no API key and make no network calls. Most of them use a fake model. They do need a `runbook-copilot` checkout for the practice-pass test. The practice command above creates one. The comparison test also needs the graph download. `compare_agents.py` creates that one.
 
 To use a checkout you already have, instead of the pinned clone:
 
@@ -81,9 +97,12 @@ export RUNBOOK_COPILOT_PATH="$HOME/src/runbook-copilot"
 
 - `questions.txt` — 30 starter questions, written as `category | question`
 - `collect_runs.py` — runs them and appends `runs.jsonl`
+- `compare_agents.py` — asks each question to the loop and the graph, then writes `compare.md`
+- `compare.md` — the comparison, so you can read it on GitHub without running anything
 - `taxonomy.md` — stop reasons, `AgentError` names, action failures, and hand labels
 - `runs.sample.jsonl` — a short slice of a practice pass
-- `test_collect_runs.py` — the pytest checks
+- `test_collect_runs.py` — the pytest checks for the collector
+- `test_compare_agents.py` — the pytest checks for the comparison
 
 ## What a practice pass looks like
 
@@ -93,4 +112,4 @@ A question that starts with "restart" becomes a proposed action, and this harnes
 
 `runs.sample.jsonl` is nine lines copied from one practice pass. It is there so you can see the shape of the file before you run anything. It is not the full list of 30.
 
-Hand-labeling the runs, filling in the taxonomy counts, and any graph experiments are later work. This repo does not do those yet.
+Hand-labeling the runs and filling in the taxonomy counts are later work. The loop-versus-graph comparison is `compare.md`.

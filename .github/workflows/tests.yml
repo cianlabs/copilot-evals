@@ -24,5 +24,10 @@ jobs:
       - name: Download the pinned runbook-copilot checkout
         run: python -c "import collect_runs; print(collect_runs.ensure_checkout())"
 
+      # The graph version lives only on an unmerged branch. Download it into
+      # .vendor-graph so one comparison test can run. The tests do not go online.
+      - name: Download the graph-agent branch
+        run: python -c "import compare_agents; print(compare_agents.ensure_graph_checkout())"
+
       - name: Run tests
         run: python -m pytest -q
