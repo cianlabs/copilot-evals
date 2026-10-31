@@ -1,0 +1,29 @@
+# Virtual environments
+.venv/
+venv/
+env/
+
+# The pinned runbook-copilot checkout this harness downloads
+.vendor/
+
+# Collected runs. Commit runs.sample.jsonl, not a fresh pass.
+runs.jsonl
+*.runs.jsonl
+
+# Key and secret files
+.env
+.env.*
+*.key
+*.pem
+secrets/
+
+# Python junk
+__pycache__/
+*.pyc
+.pytest_cache/
+
+# Tool-call log, if a checkout writes one next to the harness
+agent.log
+
+# macOS
+.DS_Store

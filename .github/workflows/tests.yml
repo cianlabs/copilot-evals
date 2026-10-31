@@ -1,0 +1,28 @@
+name: tests
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  pytest:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out this repo
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      # runbook-copilot is not a pip package. Download the commit named in
+      # collect_runs.py so the tests import the same code as a local practice pass.
+      - name: Download the pinned runbook-copilot checkout
+        run: python -c "import collect_runs; print(collect_runs.ensure_checkout())"
+
+      - name: Run tests
+        run: python -m pytest -q
