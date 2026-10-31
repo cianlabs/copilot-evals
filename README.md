@@ -98,7 +98,7 @@ Make a trace with the practice model. This does not call a model on the internet
 .venv/bin/python collect_runs.py --trace
 ```
 
-That writes `runs.jsonl` as usual, and `traces.jsonl` next to it. Without `--trace`, the runs file is unchanged and no trace file is written. Delete both files if you want a fresh pass. Both files are listed in `.gitignore`. Do not commit them.
+That writes `runs.jsonl` as usual, and `traces.jsonl` next to it. Without `--trace`, the runs file is unchanged and no trace file is written. Delete both files if you want a fresh pass, or pass `--fresh` and the command empties them first. Both files are listed in `.gitignore`. Do not commit them.
 
 Read one run:
 
@@ -113,9 +113,10 @@ Two more ways to read the file:
 ```bash
 python show_trace.py traces.jsonl --slowest 5
 python show_trace.py traces.jsonl --failures
+python show_trace.py traces.jsonl --summary
 ```
 
-`--slowest 5` lists the five runs that took the longest. `--failures` groups the failing runs by failure class, and names the step where that run went wrong.
+`--slowest 5` lists the five runs that took the longest. `--failures` groups the failing runs by failure class, and names the step where that run went wrong. `--summary` prints the total time, the total tokens, and how many runs fell in each failure class. A practice trace has no token counts, so that line says they were not recorded.
 
 The failure class reuses a name from `checks.py`, such as `PARTIAL_ANSWER`, when those checks flag the answer. If the loop raises, the class is that error name, the same one `runs.jsonl` stores in `failure`. The stop reason stays its own field. `ANSWERED` can still carry `PARTIAL_ANSWER`. The answer was written, and the check still found no fix step.
 
@@ -136,7 +137,7 @@ Honest limits:
 - The trace never stores an API key or environment variables. It stores runbook titles and scores, not the page text.
 - Step times are the model call and the search. The whole-run time is the same clock as `seconds` in `runs.jsonl`. Adding the step times may not equal the whole run, because the loop does a little more work in between.
 - The vendored loop does not hand over every score, or a timer for each step. `--trace` wraps the search tool and the model call inside `collect_runs.py`. The runbook-copilot code is not edited. The wrappers call the real functions and return the same values. Without `--trace`, those wrappers are not installed.
-- Run numbers match line numbers in that `runs.jsonl`. If you append another pass, the numbers keep going. Delete both files to start again.
+- Run numbers match line numbers in that `runs.jsonl`. If you append another pass, the numbers keep going. The command tells you when the files already have lines. Pass `--fresh` to empty both and start again.
 - For a restart command, the story shows a plan and a refused action. It does not show a search. The practice model does not search before a restart.
 - `retrieval_gold.jsonl` has 8 easy questions. It is not a full test of search.
 
@@ -257,20 +258,64 @@ export RUNBOOK_COPILOT_PATH="$HOME/src/runbook-copilot"
 
 `--copilot-path` does the same thing for one command.
 
-## Real model
+## Real-model pass
+
+This calls the real model. It costs money. The program prints a short summary first and waits until you type yes. It never prints your key and it never writes the key into a file.
+
+The runs go to `runs.real.jsonl`. With `--trace`, the steps go to `traces.real.jsonl`. Those stay apart from the practice files `runs.jsonl` and `traces.jsonl`. If either real file already has lines, the program says so. Add `--fresh` to empty both before the pass.
+
+Each model call waits at most 60 seconds. If the network fails, that question is saved as `ModelTimeout` or `ModelHttpError` and the next question still runs. If the reply includes token counts, the trace stores them and a cost from the published price. If the reply has no usage, the cost is left empty. The program does not invent a number.
+
+The line in front of `python` sets the key for that one command only. It is an example. Do not put the key in a file. If the key is missing, the program stops with `MissingKey` and shows this same example.
+
+Install the requirements:
 
 ```bash
-.venv/bin/python collect_runs.py --real
+python3 -m venv .venv && .venv/bin/pip install -r requirements.txt
 ```
 
-`--real` reads `XAI_API_KEY` from the environment. Set the key in the terminal. Do not put it in a file. The harness never prints it, never logs it, and never writes it into `runs.jsonl`. If the key is missing, the command stops with `MISSING_KEY` and does not write a line per question. The judge uses that same key. The [LLM-as-judge](#llm-as-judge) section shows the command.
+Try 3 questions first. Read the summary, then type yes:
+
+```bash
+XAI_API_KEY="$(op read 'op://Personal/xAI API Key/credential')" .venv/bin/python collect_runs.py --real --trace --limit 3
+```
+
+Then all 30. Read the summary and type yes again. Add `--yes` on the end if a script should skip the question. Add `--fresh` on the end if you do not want to keep the 3-question try:
+
+```bash
+XAI_API_KEY="$(op read 'op://Personal/xAI API Key/credential')" .venv/bin/python collect_runs.py --real --trace
+```
+
+Check the runs. This does not call a model:
+
+```bash
+.venv/bin/python check_runs.py runs.real.jsonl
+```
+
+Score them against the answer key. This does not call a model:
+
+```bash
+.venv/bin/python golden_check.py runs.real.jsonl
+```
+
+Ask the judge about the runs the checks did not flag. This does call the model, so the key is set the same way:
+
+```bash
+XAI_API_KEY="$(op read 'op://Personal/xAI API Key/credential')" .venv/bin/python judge.py runs.real.jsonl
+```
+
+Read the total time, the total tokens, and the failure counts:
+
+```bash
+.venv/bin/python show_trace.py traces.real.jsonl --summary
+```
 
 ## What each file is
 
 - `questions.txt` — 30 starter questions, written as `category | question`
-- `collect_runs.py` — runs them and appends `runs.jsonl`. `--trace` also appends `traces.jsonl`
+- `collect_runs.py` — runs them and appends `runs.jsonl`. `--real` writes `runs.real.jsonl` instead. `--trace` also appends the matching trace file
 - `trace.py` — the small tracer that writes one JSON line per step
-- `show_trace.py` — prints one trace as a short story
+- `show_trace.py` — prints one trace as a short story. `--summary` prints total time, total tokens, and runs per failure class
 - `retrieval_gold.jsonl` — 8 obvious questions and the runbook each answer should come from
 - `retrieval_score.py` — recall at 5 and MRR for that tiny starter set
 - `checks.py` — four plain checks for one run record
