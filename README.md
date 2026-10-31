@@ -2,7 +2,7 @@
 
 This repo collects real runs of [runbook-copilot](https://github.com/cianlabs/runbook-copilot) so a person can later read them and label what went wrong.
 
-It does not score the agent yet. It asks a fixed list of questions, writes down what the agent did, and stops. The names for those labels live in [taxonomy.md](taxonomy.md). The counts there are filled in by hand. Per-run notes are in [labels.md](labels.md).
+It asks a fixed list of questions and writes down what the agent did. Four plain checks can score a run file after that. The names for the labels live in [taxonomy.md](taxonomy.md). The counts there are filled in by hand. Per-run notes are in [labels.md](labels.md).
 
 If the agent proposes an action, this harness always says no. A restart is not run. A delete is not run.
 
@@ -69,13 +69,31 @@ Fields on each line:
 | failure | The `AgentError` name if the loop raised, otherwise `null`. A retrieve failure is stored under its own name too |
 | pass_number | `1` the first time through the list. Higher when you use `--passes` |
 
+## Check a run file
+
+```bash
+.venv/bin/python check_runs.py
+.venv/bin/python check_runs.py runs.sample.jsonl
+.venv/bin/python check_runs.py --strict
+```
+
+This reads a jsonl file and runs four checks on each line. It does not call a model. The default file is `runs.sample.jsonl`.
+
+The table lists each check, how many runs it flagged, and those run numbers. It also prints a total. The command exits 0 even when a check flags a run. Add `--strict` to exit with status 1 when any check flags.
+
+Checked by code: `PARTIAL_ANSWER`, `ANSWERED_OUT_OF_SCOPE`, `MISSING_CITATION`, `UNSAFE_ACTION_PROPOSED`.
+
+Still needs a person: `WRONG_RUNBOOK_CITED`, `WRONGLY_REFUSED`, `ANSWERED_WRONGLY`, `RAMBLING_OR_PASTED_TEXT`.
+
+The rules are in [taxonomy.md](taxonomy.md).
+
 ## Run the tests
 
 ```bash
 .venv/bin/python -m pytest -q
 ```
 
-The tests need no API key and make no network calls. Most of them use a fake model. They do need a `runbook-copilot` checkout for the practice-pass test. The practice command above creates one. The comparison test also needs the graph download. `compare_agents.py` creates that one.
+The tests need no API key and make no network calls. Most of them use a fake model. They do need a `runbook-copilot` checkout for the practice-pass test. The practice command above creates one. The comparison test also needs the graph download. `compare_agents.py` creates that one. The checks in `tests/test_checks.py` only read the sample file and small hand-written runs. They do not need a checkout.
 
 To use a checkout you already have, instead of the pinned clone:
 
@@ -97,6 +115,8 @@ export RUNBOOK_COPILOT_PATH="$HOME/src/runbook-copilot"
 
 - `questions.txt` — 30 starter questions, written as `category | question`
 - `collect_runs.py` — runs them and appends `runs.jsonl`
+- `checks.py` — four plain checks for one run record
+- `check_runs.py` — reads a jsonl file and prints a score table
 - `compare_agents.py` — asks each question to the loop and the graph, then writes `compare.md`
 - `compare.md` — the comparison, so you can read it on GitHub without running anything
 - `taxonomy.md` — stop reasons, `AgentError` names, action failures, and hand labels, with counts
@@ -104,6 +124,7 @@ export RUNBOOK_COPILOT_PATH="$HOME/src/runbook-copilot"
 - `runs.sample.jsonl` — a short slice of a practice pass
 - `test_collect_runs.py` — the pytest checks for the collector
 - `test_compare_agents.py` — the pytest checks for the comparison
+- `tests/test_checks.py` — the pytest checks for the four run checks
 
 ## What a practice pass looks like
 
@@ -113,4 +134,4 @@ A question that starts with "restart" becomes a proposed action, and this harnes
 
 `runs.sample.jsonl` is nine lines copied from one practice pass. It is there so you can see the shape of the file before you run anything. It is not the full list of 30.
 
-The hand labels for this practice pass are in `labels.md`. The loop-versus-graph comparison is `compare.md`.
+The hand labels for this practice pass are in `labels.md`. Four of those names are also checked by `check_runs.py`. The loop-versus-graph comparison is `compare.md`.

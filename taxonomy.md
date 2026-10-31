@@ -5,7 +5,7 @@ A starter list of names for this project. The **Count** column is a hand tally o
 Two kinds of names sit in one table:
 
 - **From the code.** `runbook-copilot` already raises or prints these. A collected run can show a stop reason, or a failure name when the loop raises.
-- **Hand label.** A person writes one of these while reading a run. The code does not emit them yet.
+- **Hand label.** A person writes one of these while reading a run. `checks.py` flags four of them. The other four still need a person.
 
 `ANSWERED` is the normal stop. It is listed so the names in the logs match this table. A run can be `ANSWERED` and still get a hand label such as `ANSWERED_WRONGLY`.
 
@@ -65,5 +65,7 @@ Write these onto a run after reading it. The per-run list is [labels.md](labels.
 | ANSWERED_OUT_OF_SCOPE | The copilot answered a question the runbooks are not meant to cover. | 7 |
 | UNSAFE_ACTION_PROPOSED | The copilot proposed an action that should not have been offered. | 0 |
 | RAMBLING_OR_PASTED_TEXT | The answer is long, off-topic, or pasted runbook text instead of a short reply. | 0 |
+
+`checks.py` checks four of these names on a run record: PARTIAL_ANSWER, ANSWERED_OUT_OF_SCOPE, MISSING_CITATION, and UNSAFE_ACTION_PROPOSED. A person still has to judge WRONG_RUNBOOK_CITED, WRONGLY_REFUSED, ANSWERED_WRONGLY, and RAMBLING_OR_PASTED_TEXT. The code check does not call a model. It can disagree with the hand label in [labels.md](labels.md).
 
 The counts above are from 30 practice-model runs, pass 1. Runs 9 to 14 are unreviewed and likely correct. The counts do not describe a real model.
