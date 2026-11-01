@@ -6,8 +6,6 @@ Usage (from the repo root):
       -> docs/img/m3_graphic.png
   python3 tools/graphics/make_graphic.py tools/graphics/data/m4_before_after.json
       -> docs/img/m4_before_after.png
-  python3 tools/graphics/make_graphic.py --animate tools/graphics/data/m4.json
-      -> docs/img/m4_graphic.png, docs/img/m4_graphic.gif, docs/video/m4_graphic.mp4
   python3 tools/graphics/make_graphic.py --out /tmp/out tools/graphics/data/m3.json
 
 Needs google-chrome (headless). Renders at 2x.
@@ -16,7 +14,6 @@ import json, sys, subprocess, tempfile, os, html
 
 REPO_ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", ".."))
 DEFAULT_IMG = os.path.join(REPO_ROOT, "docs", "img")
-DEFAULT_VIDEO = os.path.join(REPO_ROOT, "docs", "video")
 
 ARC = [("M1","Python, APIs, Git"),("M2","LLM basics + first tool call"),("M3","Agent loop + RAG"),
        ("M4","Graphs, evals, tracing"),("M5","Human-approved agents"),("M6","Ship 2 live demos")]
@@ -136,79 +133,41 @@ def render(htmltext, out, w, h):
         os.unlink(p)
         shutil.rmtree(profile, ignore_errors=True)
 
-def animate(d, gif, mp4, w, h, frames_fn, fps, hold):
-    import shutil
-    tmp=tempfile.mkdtemp(); frames=frames_fn()
-    for i,t in enumerate(frames): render(t, f"{tmp}/f{i:04d}.png", w, h)
-    last=len(frames)-1
-    for k in range(int(hold*fps)): shutil.copy(f"{tmp}/f{last:04d}.png", f"{tmp}/f{last+1+k:04d}.png")
-    os.makedirs(os.path.dirname(os.path.abspath(gif)), exist_ok=True)
-    os.makedirs(os.path.dirname(os.path.abspath(mp4)), exist_ok=True)
-    subprocess.run(["ffmpeg","-y","-loglevel","error","-framerate",str(fps),"-i",f"{tmp}/f%04d.png",
-      "-vf",f"scale={w}:-1:flags=lanczos,split[a][b];[a]palettegen=max_colors=128[p];[b][p]paletteuse=dither=none",gif],check=True)
-    subprocess.run(["ffmpeg","-y","-loglevel","error","-framerate",str(fps),"-i",f"{tmp}/f%04d.png",
-      "-vf",f"scale={w*2}:-2","-c:v","libx264","-pix_fmt","yuv420p","-r","30","-an",mp4],check=True)
-    shutil.rmtree(tmp); print("wrote",gif,mp4)
-
-def output_dirs(out_flag):
-    """Png and gif go to docs/img. Mp4 goes to docs/video.
-
-    --out DIR puts the png, gif, and mp4 in that folder instead.
-    """
+def output_dir(out_flag):
+    """Png files go to docs/img. --out DIR writes them there instead."""
     if out_flag:
-        folder = os.path.abspath(out_flag)
-        return folder, folder
-    return DEFAULT_IMG, DEFAULT_VIDEO
+        return os.path.abspath(out_flag)
+    return DEFAULT_IMG
 
 def parse_args(argv):
-    anim = "--animate" in argv
-    args = [a for a in argv if a != "--animate"]
     out_flag = None
     paths = []
     i = 0
-    while i < len(args):
-        if args[i] == "--out":
-            if i + 1 >= len(args):
-                sys.exit("usage: make_graphic.py [--animate] [--out DIR] data.json ...")
-            out_flag = args[i + 1]
+    while i < len(argv):
+        if argv[i] == "--out":
+            if i + 1 >= len(argv):
+                sys.exit("usage: make_graphic.py [--out DIR] data.json ...")
+            out_flag = argv[i + 1]
             i += 2
             continue
-        paths.append(args[i])
+        paths.append(argv[i])
         i += 1
     if not paths:
-        sys.exit("usage: make_graphic.py [--animate] [--out DIR] data.json ...")
-    return anim, out_flag, paths
-
-def bar_frames(d, steps=15):
-    import copy; out=[]; bars=d["bars"]
-    for j in range(len(bars)):
-        for s in range(1,steps+1):
-            dd=copy.deepcopy(d)
-            for k,b in enumerate(dd["bars"]):
-                if k>j: b["value"]=0; b["hide"]=True
-                elif k==j: b["value"]=round(bars[k]["value"]*s/steps)
-            out.append(bars_html(dd))
-    return out
+        sys.exit("usage: make_graphic.py [--out DIR] data.json ...")
+    return out_flag, paths
 
 if __name__=="__main__":
-    anim, out_flag, paths = parse_args(sys.argv[1:])
-    img_dir, video_dir = output_dirs(out_flag)
+    out_flag, paths = parse_args(sys.argv[1:])
+    img_dir = output_dir(out_flag)
     os.makedirs(img_dir, exist_ok=True)
     for path in paths:
         d=json.load(open(path))
         if d.get("type")=="bars":
             name=d["out"]; w,h=1200,675
+            htmltext=bars_html(d)
         else:
             name=d.get("out", d["month"].lower()+"_graphic.png"); w,h=1024,d.get("height",806)
+            htmltext=month_html(d)
         out=os.path.join(img_dir, os.path.basename(name))
-        gif=os.path.splitext(out)[0]+".gif"
-        mp4=os.path.join(video_dir, os.path.splitext(os.path.basename(out))[0]+".mp4")
-        if d.get("type")=="bars":
-            render(bars_html(d), out, w, h)
-            if anim: animate(d, gif, mp4, w, h, lambda: bar_frames(d), 15, 2)
-        else:
-            render(month_html(d), out, w, h)
-            if anim:
-                N=6+sum(2*len(r["cards"])-1 for r in d["rows"])+len(d["keys"])
-                animate(d, gif, mp4, w, h, lambda: [month_html(d,i) for i in range(N+1)], 5, 2)
+        render(htmltext, out, w, h)
         print("wrote", out)

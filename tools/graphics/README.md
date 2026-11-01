@@ -2,7 +2,7 @@
 
 Draw a month graphic, or a before/after bar chart, from a JSON file.
 
-Needs Python 3, Google Chrome (headless), ffmpeg, and the Inter font.
+Needs Python 3, Google Chrome (headless), and the Inter font.
 
 ## Make a new month
 
@@ -17,13 +17,7 @@ Example for M5. Run the commands from the repo root.
 python3 tools/graphics/make_graphic.py tools/graphics/data/m5.json
 ```
 
-Add `--animate` to also write `docs/img/m5_graphic.gif` and `docs/video/m5_graphic.mp4`:
-
-```bash
-python3 tools/graphics/make_graphic.py --animate tools/graphics/data/m5.json
-```
-
-`--out DIR` writes the png and the gif into that folder. With `--out`, the mp4 goes in the same folder.
+`--out DIR` writes the png into that folder instead of `docs/img`.
 
 ## Bar chart
 

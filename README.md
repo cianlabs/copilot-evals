@@ -509,7 +509,7 @@ The latest set has to meet the numbers you wrote. If it does not, the check fail
 - `tests/test_regression.py` — the pytest checks for the named regression failures
 - `tests/test_judge.py` — the pytest checks for the judge. They use a fake judge and do not call a model
 - `tests/test_trace.py` — the tracer, the story printer, and the retrieval math
-- `tools/graphics/make_graphic.py` — draws the month graphics from `tools/graphics/data`. Png and gif files land in `docs/img`. Mp4 files land in `docs/video`
+- `tools/graphics/make_graphic.py` — draws the month graphics from `tools/graphics/data`. The png files land in `docs/img`
 
 ## What a practice pass looks like
 
