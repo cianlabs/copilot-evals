@@ -1,0 +1,7 @@
+{
+  "passed": 144,
+  "total": 150,
+  "max_answered_out_of_scope": 5,
+  "known_failures": [25],
+  "note": "The latest recorded set must pass at least this many runs, and it may have at most this many ANSWERED_OUT_OF_SCOPE answers. Question 25 is a known failure and is allowed to fail. It is the container question: the words container and memory are really in the memory runbook, so the word-match guard cannot catch it. To raise the floor, edit passed and max_answered_out_of_scope in a pull request after you record a better set. The check does not raise the floor by itself."
+}
