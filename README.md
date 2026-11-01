@@ -2,7 +2,7 @@
 
 This repo collects real runs of [runbook-copilot](https://github.com/cianlabs/runbook-copilot) so a person can later read them and label what went wrong.
 
-It asks a fixed list of questions and writes down what the agent did. You can also save a trace of each step. That is explained in Tracing in simple words. Four plain checks can score a run file after that. `judge.py` asks a model about the four failures those checks cannot see. It skips runs the checks already flagged. [golden.jsonl](golden.jsonl) is the answer key for those questions, and `golden_check.py` scores a run file against it. The names for the labels live in [taxonomy.md](taxonomy.md). The counts there are filled in by hand. Per-run notes are in [labels.md](labels.md).
+It asks a fixed list of questions and writes down what the agent did. You can also save a trace of each step. That is explained in Tracing in simple words. Plain checks can score a run file after that. One of them flags a run that used every step and never gave a final answer. `judge.py` asks a model about the four failures those checks cannot see. It skips runs the checks already flagged. [golden.jsonl](golden.jsonl) is the answer key for those questions, and `golden_check.py` scores a run file against it. The names for the labels live in [taxonomy.md](taxonomy.md). The counts there are filled in by hand. Per-run notes are in [labels.md](labels.md).
 
 If the agent proposes an action, this harness always says no. A restart is not run. A delete is not run.
 
@@ -118,7 +118,7 @@ python show_trace.py traces.jsonl --summary
 
 `--slowest 5` lists the five runs that took the longest. `--failures` groups the failing runs by failure class, and names the step where that run went wrong. `--summary` prints the total time, the total tokens, and how many runs fell in each failure class. A practice trace has no token counts, so that line says they were not recorded.
 
-The failure class reuses a name from `checks.py`, such as `PARTIAL_ANSWER`, when those checks flag the answer. If the loop raises, the class is that error name, the same one `runs.jsonl` stores in `failure`. The stop reason stays its own field. `ANSWERED` can still carry `PARTIAL_ANSWER`. The answer was written, and the check still found no fix step.
+The failure class reuses a name from `checks.py`, such as `PARTIAL_ANSWER`, when those checks flag the answer. If the loop raises, the class is that error name, the same one `runs.jsonl` stores in `failure`. The stop reason stays its own field. `ANSWERED` can still carry `PARTIAL_ANSWER`. The answer was written, and the check still found no fix step. When the stop reason is `MAX_STEPS_REACHED`, the story, `--failures`, and `--summary` name `GAVE_UP_AT_STEP_LIMIT` on the last answer step. That still happens if an older trace left the failure field empty.
 
 A small retrieval score sits beside the trace, because a trace shows what search returned and this asks a narrower question. For a few answerable questions, was the right runbook in the top 5 hits?
 
@@ -149,11 +149,13 @@ Honest limits:
 .venv/bin/python check_runs.py --strict
 ```
 
-This reads a jsonl file and runs four checks on each line. It does not call a model. The default file is `runs.sample.jsonl`.
+This reads a jsonl file and runs the plain checks on each line. It does not call a model. The default file is `runs.sample.jsonl`.
 
 The table lists each check, how many runs it flagged, and those run numbers. It also prints a total. The command exits 0 even when a check flags a run. Add `--strict` to exit with status 1 when any check flags.
 
-Checked by code: `PARTIAL_ANSWER`, `ANSWERED_OUT_OF_SCOPE`, `MISSING_CITATION`, `UNSAFE_ACTION_PROPOSED`.
+Checked by code: `PARTIAL_ANSWER`, `ANSWERED_OUT_OF_SCOPE`, `MISSING_CITATION`, `UNSAFE_ACTION_PROPOSED`, and `GAVE_UP_AT_STEP_LIMIT`.
+
+`GAVE_UP_AT_STEP_LIMIT` means the stop reason is `MAX_STEPS_REACHED`. The copilot used every step. Search kept finding nothing, or it kept rewording the search, and it never gave a final answer. The goal is that it says it cannot find a runbook, or it proposes an action for a person to approve.
 
 `PARTIAL_ANSWER` covers an answerable question. It also covers an action question when the stop reason is `ANSWERED` and the reply has no fix step. A line is not a fix when it is only a symptom, an Adapted from issue link, a see-the-issue or check-each-cause line, or a generic debug tip such as run with -vvvv or check the logs.
 
@@ -184,7 +186,7 @@ Score a run file. This does not call a model and does not need an API key:
 
 The default file is `runs.sample.jsonl`. The command prints a table that groups failures by class, then a score line. On the sample that line is `3 of 9 pass`. On a full pass of all 30 questions it is `8 of 30 pass`.
 
-A run passes only when every check is clean. The four checks from `checks.py` still run: `PARTIAL_ANSWER`, `ANSWERED_OUT_OF_SCOPE`, `MISSING_CITATION`, and `UNSAFE_ACTION_PROPOSED`. One more check, `WRONG_BEHAVIOR`, fails when the run did not do what the golden row expected. A run can fail more than one check. It still counts as one failed run in the score.
+A run passes only when every check is clean. The checks from `checks.py` still run: `PARTIAL_ANSWER`, `ANSWERED_OUT_OF_SCOPE`, `MISSING_CITATION`, `UNSAFE_ACTION_PROPOSED`, and `GAVE_UP_AT_STEP_LIMIT`. One more check, `WRONG_BEHAVIOR`, fails when the run did not do what the golden row expected. A run can fail more than one check. It still counts as one failed run in the score. A run that hit the step limit and also missed the golden row is listed as both `GAVE_UP_AT_STEP_LIMIT` and `WRONG_BEHAVIOR`. The practice model does not hit the step limit, so that class stays at 0 on the 30 practice questions and the score stays 8 of 30.
 
 `baseline.json` records that score and the count for each failure class. The practice model is deterministic. Two passes of all 30 questions matched. The checks do not read `seconds`, which is only a timer. The nine lines in `runs.sample.jsonl` match those passes on the same questions. The baseline is the fresh 30-question pass: 8 of 30 pass. The class counts on that pass are `PARTIAL_ANSWER` 12, `ANSWERED_OUT_OF_SCOPE` 9, `MISSING_CITATION` 0, `UNSAFE_ACTION_PROPOSED` 0, and `WRONG_BEHAVIOR` 11. Runs 10 and 13 are in that partial count: each reply is a symptom, an issue link, and a debug tip, with no fix step. The same file also stores the sample score: 3 of 9 pass.
 
@@ -192,7 +194,7 @@ The test in `tests/test_golden.py` runs the practice model again and compares. I
 
 ## LLM-as-judge
 
-Some failures are easy to spot with plain code. `checks.py` does that first. It looks for a missing fix step, an out-of-scope answer, a missing citation, and an action that was not denied.
+Some failures are easy to spot with plain code. `checks.py` does that first. It looks for a missing fix step, an out-of-scope answer, a missing citation, an action that was not denied, and a run that used every step.
 
 Four failures are harder. The code cannot tell whether the cited runbook is the right one, whether a refusal was wrong, whether the steps contradict the runbook, or whether the answer is rambling. Those four are `WRONG_RUNBOOK_CITED`, `WRONGLY_REFUSED`, `ANSWERED_WRONGLY`, and `RAMBLING_OR_PASTED_TEXT`.
 
@@ -310,6 +312,20 @@ Read the total time, the total tokens, and the failure counts:
 .venv/bin/python show_trace.py traces.real.jsonl --summary
 ```
 
+## Real-model findings (Oct 31)
+
+One pass with one real model scored 22 of 30 on the golden set. The practice model scored 8 of 30 on the same questions.
+
+The 8 misses were:
+
+- Runs 20 and 22. These are near-miss laptop questions. The copilot answered them anyway.
+- Runs 17, 25, 28, and 29. The copilot ran out of steps. The stop reason was `MAX_STEPS_REACHED`. Search kept going and it never gave a final answer.
+- Runs 27 and 30. These are action requests. The copilot said it did not know, instead of asking a human.
+
+These numbers come from one pass with one model. They are not proof. The full real run files are not committed.
+
+The cost was about 2.6 cents. The total time was about 215 seconds for 30 questions.
+
 ## What each file is
 
 - `questions.txt` — 30 starter questions, written as `category | question`
@@ -318,7 +334,7 @@ Read the total time, the total tokens, and the failure counts:
 - `show_trace.py` — prints one trace as a short story. `--summary` prints total time, total tokens, and runs per failure class
 - `retrieval_gold.jsonl` — 8 obvious questions and the runbook each answer should come from
 - `retrieval_score.py` — recall at 5 and MRR for that tiny starter set
-- `checks.py` — four plain checks for one run record
+- `checks.py` — plain checks for one run record, including a run that used every step
 - `check_runs.py` — reads a jsonl file and prints a score table
 - `golden.jsonl` — the answer key, one line per question
 - `golden_check.py` — scores a run file against the golden set
@@ -332,7 +348,7 @@ Read the total time, the total tokens, and the failure counts:
 - `test_compare_agents.py` — the pytest checks for the comparison
 - `judge.py` — asks a model to grade the four failures the code checks cannot see
 - `judge_agreement.py` — compares the judge to the hand labels in `labels.md`
-- `tests/test_checks.py` — the pytest checks for the four run checks
+- `tests/test_checks.py` — the pytest checks for the run checks
 - `tests/test_golden.py` — the golden file checks, and the regression test against `baseline.json`
 - `tests/test_judge.py` — the pytest checks for the judge. They use a fake judge and do not call a model
 - `tests/test_trace.py` — the tracer, the story printer, and the retrieval math

@@ -5,6 +5,10 @@ No model is called. One line of the file is one run. The table lists each
 check, how many runs it flagged, and those run numbers. Run numbers follow
 the order of lines in the file, starting at 1.
 
+GAVE_UP_AT_STEP_LIMIT is one of those rows. It counts runs whose stop
+reason is MAX_STEPS_REACHED. The copilot used every step and never gave
+a final answer.
+
     python3 check_runs.py
     python3 check_runs.py runs.sample.jsonl
     python3 check_runs.py --strict

@@ -378,6 +378,7 @@ def test_sample_file_scores_these_runs():
         "ANSWERED_OUT_OF_SCOPE": [3, 4, 5],
         "MISSING_CITATION": [],
         "UNSAFE_ACTION_PROPOSED": [],
+        "GAVE_UP_AT_STEP_LIMIT": [],
     }
     assert len(failures) == 5
 
@@ -415,6 +416,48 @@ def test_strict_exits_zero_when_nothing_flags(tmp_path, capsys):
     out = capsys.readouterr().out
     assert code == 0
     assert "0 of 1 runs" in out
+
+
+def test_step_limit_flags_max_steps_and_not_an_answer():
+    """MAX_STEPS_REACHED is GAVE_UP_AT_STEP_LIMIT. ANSWERED is not."""
+    gave_up = record(
+        question="How do I tune Postgres vacuum for a large table",
+        category="not_in_runbooks",
+        stop_reason="MAX_STEPS_REACHED",
+        answer="Still searching.",
+        sources=[],
+    )
+    failures = checks.check_run(gave_up)
+    assert len(failures) == 1
+    assert failures[0].startswith("GAVE_UP_AT_STEP_LIMIT: ")
+    assert gave_up["question"] in failures[0]
+
+    answered = record(stop_reason="ANSWERED")
+    names = [failure.split(": ", 1)[0] for failure in checks.check_run(answered)]
+    assert "GAVE_UP_AT_STEP_LIMIT" not in names
+
+
+def test_check_runs_table_shows_the_step_limit_class(tmp_path, capsys):
+    """The score table names the class and the run that hit the step limit."""
+    gave_up = record(
+        question="How do I tune Postgres vacuum for a large table",
+        category="not_in_runbooks",
+        stop_reason="MAX_STEPS_REACHED",
+        answer="Still searching.",
+        sources=[],
+    )
+    answered = record()
+    path = tmp_path / "runs.jsonl"
+    path.write_text(
+        json.dumps(gave_up) + "\n" + json.dumps(answered) + "\n",
+        encoding="utf-8",
+    )
+    code = check_runs.main([str(path)])
+    out = capsys.readouterr().out
+    assert code == 0
+    assert "GAVE_UP_AT_STEP_LIMIT" in out
+    assert "run 1: GAVE_UP_AT_STEP_LIMIT:" in out
+    assert "run 2: GAVE_UP_AT_STEP_LIMIT:" not in out
 
 
 def test_bad_json_is_named_and_exits(tmp_path, capsys):

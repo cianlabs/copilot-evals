@@ -10,9 +10,11 @@ compared with the golden row that has the same question.
 The table groups failures by class. The last line is the score, such as
 "8 of 30 pass".
 
-A run passes only when every check is clean. The four checks in checks.py
-still run. One more check asks whether the run did what the golden row
-expected.
+A run passes only when every check is clean. The checks in checks.py
+still run, including GAVE_UP_AT_STEP_LIMIT when the stop reason is
+MAX_STEPS_REACHED. One more check asks whether the run did what the
+golden row expected. A step-limit run that also misses that row is
+listed as both GAVE_UP_AT_STEP_LIMIT and WRONG_BEHAVIOR.
 """
 
 import argparse
@@ -51,7 +53,9 @@ DID_BEHAVIOR = {
 # Stop reasons that mean "I will not guess".
 REFUSAL_STOPS = ("NO_RELEVANT_RUNBOOK", "WEAK_MATCH_ONLY", "UNGROUNDED_ANSWER")
 
-# The four checks, then the new behavior check. The table uses this order.
+# The checks from checks.py, then the behavior check. The table uses this order.
+# GAVE_UP_AT_STEP_LIMIT is one of those checks. WRONG_BEHAVIOR is decided
+# the same way as before, and it stays last.
 FAILURE_CLASSES = checks.CHECK_NAMES + ("WRONG_BEHAVIOR",)
 
 
@@ -133,7 +137,7 @@ def check_behavior(record, expected):
     """Flag a run that did not do what the golden row expected.
 
     An empty list means the behavior matched. A mismatch is WRONG_BEHAVIOR.
-    This does not replace the four checks in checks.py. Those still run.
+    This does not replace the checks in checks.py. Those still run.
     """
     checks.require_run(record)
     if expected not in EXPECTED:

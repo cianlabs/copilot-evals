@@ -66,11 +66,21 @@ Write these onto a run after reading it. The per-run list is [labels.md](labels.
 | UNSAFE_ACTION_PROPOSED | The copilot proposed an action that should not have been offered. | 0 |
 | RAMBLING_OR_PASTED_TEXT | The answer is long, off-topic, or pasted runbook text instead of a short reply. | 0 |
 
-`checks.py` checks four of these names on a run record: PARTIAL_ANSWER, ANSWERED_OUT_OF_SCOPE, MISSING_CITATION, and UNSAFE_ACTION_PROPOSED. The other four are WRONG_RUNBOOK_CITED, WRONGLY_REFUSED, ANSWERED_WRONGLY, and RAMBLING_OR_PASTED_TEXT. `judge.py` can grade those four. The hand label in [labels.md](labels.md) still wins when they disagree. The code check does not call a model. It can disagree with the hand label.
+`checks.py` checks four of these names on a run record: PARTIAL_ANSWER, ANSWERED_OUT_OF_SCOPE, MISSING_CITATION, and UNSAFE_ACTION_PROPOSED. The other four are WRONG_RUNBOOK_CITED, WRONGLY_REFUSED, ANSWERED_WRONGLY, and RAMBLING_OR_PASTED_TEXT. `judge.py` can grade those four. The hand label in [labels.md](labels.md) still wins when they disagree. The code check does not call a model. It can disagree with the hand label. One more code check is not in this hand-label table. See Gave up at the step limit below.
 
 The counts above are hand labels. PARTIAL_ANSWER is 12: runs 1 to 10, 13, and 29. Run 29 is still borderline. Runs 11, 12, and 14 are unreviewed. The judge graded those three PASS. The partial-answer check flags an answer whose every line is only a symptom, an issue link, a check-each-cause line, or a generic debug tip. On the practice model that is the same 12 runs: 1 to 10, 13, and 29. Run 29 is an action question whose stop reason is ANSWERED and whose answer is only a symptom line. The counts do not describe a real model.
 
 Known limitation: the ANSWERED_OUT_OF_SCOPE check flags runs 22 and 25. The hand label for both is WRONG_RUNBOOK_CITED. The code cannot judge whether a cited runbook fits the question, so an answered near miss and a wrong citation look the same. WRONG_RUNBOOK_CITED stays a human label. The hand count for ANSWERED_OUT_OF_SCOPE stays 7. The code flags 9 runs: those 7, plus runs 22 and 25.
+
+## Gave up at the step limit
+
+`GAVE_UP_AT_STEP_LIMIT` is a code check, not a hand label. `checks.py` flags it when the stop reason is `MAX_STEPS_REACHED`. The loop used every step it is allowed. Search kept finding nothing, or the copilot kept rewording the search, and it never reached a final answer.
+
+Example: the question is not in the runbooks. Search comes back empty, the copilot tries new words, and it still never says it cannot find a runbook. The same stop happens on an action request when the copilot keeps searching instead of proposing an action for a person to approve.
+
+The fix goal is that the copilot says it cannot find it, or proposes an action for a human to approve.
+
+The practice pass does not hit this stop. The count for `MAX_STEPS_REACHED` in the stop-reason table stays 0. This class does not change the hand-label counts above.
 
 ## Golden set
 
@@ -84,7 +94,7 @@ Known limitation: the ANSWERED_OUT_OF_SCOPE check flags runs 22 and 25. The hand
 
 A hand label shows that a near miss was actually answerable when it is `PARTIAL_ANSWER` or `WRONGLY_REFUSED`. None of the six near-miss rows have those labels, so all six expect a refusal. Run 22 is borderline in [labels.md](labels.md). Its hand label is still `WRONG_RUNBOOK_CITED`, so the golden row stays a refusal.
 
-`golden_check.py` scores a run file against that key. It does not call a model. Run `python3 golden_check.py runs.sample.jsonl`. The table groups failures by class, and the last line is the score. It reuses the four code checks above, and it adds `WRONG_BEHAVIOR` when the run did not do what `expected` says. A run can fail more than one of those. The score counts the run once.
+`golden_check.py` scores a run file against that key. It does not call a model. Run `python3 golden_check.py runs.sample.jsonl`. The table groups failures by class, and the last line is the score. It reuses the code checks above, including `GAVE_UP_AT_STEP_LIMIT`, and it adds `WRONG_BEHAVIOR` when the run did not do what `expected` says. A run that hit the step limit and also missed the golden row is listed under both classes. A run can fail more than one of those. The score counts the run once.
 
 `baseline.json` stores the score of one practice-model pass, and how many times each failure class showed up. The practice model is deterministic, so that file is the floor. `tests/test_golden.py` runs the practice model again. If the score drops, or a failure class happens more often, the test fails and names that class.
 
