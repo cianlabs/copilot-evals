@@ -35,3 +35,7 @@ jobs:
 
       - name: Run tests
         run: python -m pytest -q
+
+      # Committed results and the practice model only. No API key, no real model.
+      - name: Check recorded results against the floor
+        run: python regression_check.py
