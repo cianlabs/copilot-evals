@@ -10,6 +10,8 @@ Run numbers match runs.jsonl. Run 13 is the 13th line of that file
 when both files were written by the same pass.
 
 This file only reads the trace. It does not call a model.
+A stop reason of MAX_STEPS_REACHED is the failure class
+GAVE_UP_AT_STEP_LIMIT. The failing step is the last answer step.
 """
 
 import argparse
@@ -17,6 +19,7 @@ import json
 import sys
 from pathlib import Path
 
+import checks
 import trace
 
 
@@ -29,12 +32,49 @@ def question_of(events):
     return ""
 
 
+def last_answer_event(events):
+    """The last answer step, or None when this run has no answer step."""
+    last = None
+    for event in events:
+        if event.get("node") == "answer":
+            last = event
+    return last
+
+
+def step_limit_event(events):
+    """The step to blame when the run stopped at the step limit.
+
+    The stop reason MAX_STEPS_REACHED means the copilot never reached a
+    final answer. Older traces store that stop reason and leave failure
+    empty. The class still belongs on the last answer step. If the trace
+    has no answer step, the step that carries the stop reason is used.
+    """
+    hit = None
+    for event in events:
+        if event.get("stop_reason") == checks.STEP_LIMIT_STOP:
+            hit = event
+    if hit is None:
+        return None
+    answer = last_answer_event(events)
+    if answer is not None:
+        return answer
+    return hit
+
+
 def failing_pairs(events):
-    """(failure name, step) for every named failure on this run."""
+    """(failure name, step) for every named failure on this run.
+
+    A run that hit the step limit is GAVE_UP_AT_STEP_LIMIT even when the
+    trace left the failure field empty. The pair uses the last answer step.
+    """
     pairs = []
     for event in events:
         for name in trace.failure_names(event.get("failure")):
             pairs.append((name, event))
+    limit = step_limit_event(events)
+    already = any(name == checks.GAVE_UP_AT_STEP_LIMIT for name, _event in pairs)
+    if limit is not None and not already:
+        pairs.append((checks.GAVE_UP_AT_STEP_LIMIT, limit))
     return pairs
 
 
@@ -146,10 +186,7 @@ def format_summary(runs):
         ms = _number(events[-1].get("run_latency_ms"))
         if ms is not None:
             total_ms += ms
-        seen = set()
         for event in events:
-            for name in trace.failure_names(event.get("failure")):
-                seen.add(name)
             inn = _number(event.get("tokens_in"))
             out = _number(event.get("tokens_out"))
             if inn is not None:
@@ -162,6 +199,12 @@ def format_summary(runs):
             if step_cost is not None:
                 cost += step_cost
                 saw_cost = True
+        # Same names as --failures, including a step-limit run whose
+        # failure field was left empty. A run is counted once per class.
+        seen = []
+        for name, _event in failing_pairs(events):
+            if name not in seen:
+                seen.append(name)
         if not seen:
             class_counts["none"] = class_counts.get("none", 0) + 1
         else:

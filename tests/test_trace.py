@@ -450,6 +450,137 @@ def test_show_trace_prints_the_model_line_and_the_summary(tmp_path, capsys):
     assert "none  1" in summary
 
 
+def test_fake_trace_shows_step_limit_on_the_last_answer_step(tmp_path, capsys):
+    """A trace with no failure field still names the step-limit class.
+
+    The failing step is the last answer step, not an earlier search.
+    --failures and --summary both count that class. An ANSWERED run
+    in the same file is not that class.
+    """
+    question = "How do I tune Postgres vacuum for a large table"
+    rows = [
+        {
+            "trace_id": "lim111",
+            "run_number": 17,
+            "step": 1,
+            "node": "search",
+            "inputs": {"question": question, "query": "postgres vacuum"},
+            "tool_calls": [],
+            "tool_results": [],
+            "stop_reason": None,
+            "failure": None,
+            "latency_ms": 4,
+            "run_latency_ms": 30,
+        },
+        {
+            "trace_id": "lim111",
+            "run_number": 17,
+            "step": 2,
+            "node": "search",
+            "inputs": {"question": question, "query": "vacuum large table"},
+            "tool_calls": [],
+            "tool_results": [],
+            "stop_reason": None,
+            "failure": None,
+            "latency_ms": 4,
+            "run_latency_ms": 30,
+        },
+        {
+            "trace_id": "lim111",
+            "run_number": 17,
+            "step": 3,
+            "node": "answer",
+            "inputs": {"question": question},
+            "tool_calls": [],
+            "tool_results": [],
+            "stop_reason": "MAX_STEPS_REACHED",
+            "failure": None,
+            "latency_ms": 2,
+            "run_latency_ms": 30,
+        },
+        {
+            "trace_id": "ok1111",
+            "run_number": 1,
+            "step": 1,
+            "node": "answer",
+            "inputs": {"question": "The disk is almost full"},
+            "tool_calls": [],
+            "tool_results": [],
+            "stop_reason": "ANSWERED",
+            "failure": None,
+            "latency_ms": 1,
+            "run_latency_ms": 5,
+        },
+    ]
+    path = tmp_path / "traces.jsonl"
+    path.write_text("".join(json.dumps(row) + "\n" for row in rows), encoding="utf-8")
+
+    code = show_trace.main([str(path), "17"])
+    story = capsys.readouterr().out
+    assert code == 0
+    assert "Stop reason: MAX_STEPS_REACHED" in story
+    assert "Failure class: GAVE_UP_AT_STEP_LIMIT" in story
+    assert "Went wrong at step 3 (answer)" in story
+    assert "Went wrong at step 1" not in story
+    assert "Went wrong at step 2" not in story
+
+    code = show_trace.main([str(path), "--failures"])
+    failures = capsys.readouterr().out
+    assert code == 0
+    assert "GAVE_UP_AT_STEP_LIMIT" in failures
+    assert "Run 17 went wrong at step 3 (answer)" in failures
+    assert "Run 1 went wrong" not in failures
+
+    code = show_trace.main([str(path), "--summary"])
+    summary = capsys.readouterr().out
+    assert code == 0
+    assert "GAVE_UP_AT_STEP_LIMIT  1" in summary
+    assert "none  1" in summary
+
+
+def test_tracer_puts_step_limit_on_the_last_answer_step():
+    """A fake run row is written with the class on the last answer step."""
+    record = {
+        "question": "Restart the stuck web worker",
+        "category": "action",
+        "stop_reason": "MAX_STEPS_REACHED",
+        "answer": "Still searching.",
+        "sources": [],
+        "steps": 4,
+        "thoughts": ["search again"],
+        "seconds": 0.2,
+        "failure": None,
+    }
+    notes = [
+        {"kind": "model", "latency_ms": 5},
+        {
+            "kind": "tool",
+            "name": "search_runbooks",
+            "query": "restart web worker",
+            "results": [],
+            "latency_ms": 2,
+        },
+        {"kind": "model", "latency_ms": 5},
+        {
+            "kind": "tool",
+            "name": "search_runbooks",
+            "query": "stuck worker",
+            "results": [],
+            "latency_ms": 2,
+        },
+    ]
+    events = trace.events_from_run(record, notes, [])
+    assert events[-1]["node"] == "answer"
+    assert events[-1]["failure"] == "GAVE_UP_AT_STEP_LIMIT"
+    assert events[-1]["stop_reason"] == "MAX_STEPS_REACHED"
+    assert events[-1]["step"] == len(events)
+    for event in events[:-1]:
+        assert "GAVE_UP_AT_STEP_LIMIT" not in trace.failure_names(event.get("failure"))
+    story = show_trace.format_run(events)
+    assert f"Went wrong at step {events[-1]['step']} (answer)" in story
+    assert "Failure class: GAVE_UP_AT_STEP_LIMIT" in story
+
+
 def test_retrieval_math_on_a_made_up_example():
     """Three questions. The right runbook is 1st, 6th, and missing.
 

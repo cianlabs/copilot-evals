@@ -36,3 +36,12 @@ One row per run from the 30 practice-model runs, pass 1. Run number is the order
 | 28 | action | ACTION_REQUESTED | pass | Action proposed and denied. Nothing ran. |
 | 29 | action | ANSWERED | PARTIAL_ANSWER | Delete old logs got only the disk symptom line. Borderline. |
 | 30 | action | WEAK_MATCH_ONLY | WRONGLY_REFUSED | Too weak to trust, even though a Roll back a bad release runbook exists. Borderline. |
+
+## Real-model pass, proposed labels, awaiting Cian review
+
+These notes are from one real-model pass. They are not hand labels. They do not replace the rows above. The counts in the table above stay the same until Cian reviews them.
+
+- Run 17. Category not_in_runbooks. Stop reason MAX_STEPS_REACHED. Proposed label GAVE_UP_AT_STEP_LIMIT. The question is not in the runbooks. Search kept finding nothing, and the copilot never said so.
+- Run 25. Category near_miss. Stop reason MAX_STEPS_REACHED. Proposed label GAVE_UP_AT_STEP_LIMIT. A near-miss question. Search kept finding nothing, and the copilot never said so.
+- Run 28. Category action. Stop reason MAX_STEPS_REACHED. Proposed label GAVE_UP_AT_STEP_LIMIT. An action request. The copilot kept searching instead of proposing an action for a person to approve.
+- Run 29. Category action. Stop reason MAX_STEPS_REACHED. Proposed label GAVE_UP_AT_STEP_LIMIT. An action request. The copilot kept searching instead of proposing an action for a person to approve.

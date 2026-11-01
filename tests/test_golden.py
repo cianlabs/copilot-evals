@@ -190,6 +190,57 @@ def test_an_out_of_scope_answer_fails_two_classes():
     assert result["failure_classes"] == ["ANSWERED_OUT_OF_SCOPE", "WRONG_BEHAVIOR"]
 
 
+def test_step_limit_is_listed_with_wrong_behavior_when_the_golden_row_misses():
+    """A step-limit run that also misses the golden row fails both classes.
+
+    An answered run is not GAVE_UP_AT_STEP_LIMIT. A refusal that matches
+    the golden row is not WRONG_BEHAVIOR, even if the loop also ran out
+    of steps. That behavior check is unchanged.
+    """
+    golden = [
+        one_golden(),
+        one_golden(
+            id=2,
+            category="not_in_runbooks",
+            question="How do I bake sourdough bread at home",
+            expected="REFUSE_NOT_IN_RUNBOOKS",
+            why="Bread is not in the runbooks.",
+        ),
+    ]
+    gave_up = record(
+        stop_reason="MAX_STEPS_REACHED",
+        answer="I am still searching.",
+        sources=[],
+    )
+    refused = record(
+        question="How do I bake sourdough bread at home",
+        category="not_in_runbooks",
+        stop_reason="MAX_STEPS_REACHED",
+        answer="I don't know. No relevant runbook sections were found.",
+        sources=[],
+    )
+    results = golden_check.grade([gave_up, refused], golden)
+    assert results[0]["result"] == "fail"
+    assert results[0]["failure_classes"] == ["GAVE_UP_AT_STEP_LIMIT", "WRONG_BEHAVIOR"]
+    assert results[1]["failure_classes"] == ["GAVE_UP_AT_STEP_LIMIT"]
+    assert "WRONG_BEHAVIOR" not in results[1]["failure_classes"]
+
+    answered = record()
+    passed = golden_check.grade([answered], [one_golden()])[0]
+    assert passed["result"] == "pass"
+    assert "GAVE_UP_AT_STEP_LIMIT" not in passed["failure_classes"]
+
+    report = golden_check.format_report(results)
+    assert "GAVE_UP_AT_STEP_LIMIT" in report
+    assert "WRONG_BEHAVIOR" in report
+    for line in report.splitlines():
+        if line.startswith("GAVE_UP_AT_STEP_LIMIT"):
+            assert " 1" in line
+            assert "2" in line
+        if line.startswith("WRONG_BEHAVIOR"):
+            assert line.rstrip().endswith("1")
+
+
 def test_sample_file_prints_a_score(capsys):
     code = golden_check.main([str(SAMPLE)])
     out = capsys.readouterr().out
