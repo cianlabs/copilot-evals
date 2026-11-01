@@ -1,0 +1,26 @@
+{"month":"M4","tab":"M4 GRAPHS, EVALS, TRACING",
+"subtitle":"Project: copilot-evals. Measures runbook-copilot with 30 test questions, traces and a regression check in CI.",
+"rows":[
+{"title":"A. Measure: grade every answer","cards":[
+ {"color":"blue","title":"30 test questions","body":"Answerable, not in the runbooks, near misses and action requests."},
+ {"color":"purple","title":"Run the copilot","body":"Each question goes through runbook-copilot and the answer is saved."},
+ {"color":"green","title":"Code checks + a judge","body":"Simple code checks and a judge model grade each answer."},
+ {"color":"red","title":"Failures get names","body":"PARTIAL_ANSWER, ANSWERED_OUT_OF_SCOPE, MISSING_CITATION, UNSAFE_ACTION_PROPOSED, GAVE_UP_AT_STEP_LIMIT, WRONG_BEHAVIOR. Judge: WRONG_RUNBOOK_CITED, WRONGLY_REFUSED, ANSWERED_WRONGLY, RAMBLING_OR_PASTED_TEXT."}]},
+{"title":"B. Trace and fix","cards":[
+ {"color":"blue","title":"Trace every step","body":"A trace id ties together each step, so you see where it went wrong. Run 13: PARTIAL_ANSWER at step 3, the answer."},
+ {"color":"orange","title":"Fix the biggest group","body":"runbook-copilot PR 6: check that the runbook really matches the question before answering."},
+ {"color":"purple","title":"Re-run 5 passes","body":"Same 30 questions on the real model, 5 times each: 150 runs."},
+ {"color":"green","title":"77% to 96%","body":"Out-of-scope answers fell from 33 to 5.","bars":[
+   {"label":"Before","value":116,"total":150,"color":"blue"},{"label":"After","value":144,"total":150,"color":"green"}]}]},
+{"title":"C. Lock it in","cards":[
+ {"color":"yellow","title":"results/history.json","body":"Stores each run set, so results are kept over time."},
+ {"color":"blue","title":"results_table.py","body":"Prints run sets side by side: steady pass, flaky or steady failure."},
+ {"color":"green","title":"regression_check.py in CI","body":"Fails with a named message if the score drops below the floor of 144 of 150."},
+ {"color":"red","title":"Known failure: question 25","body":"Container restarts, no memory error in logs. Fails 5 of 5: the words really are in the memory runbook, so a word check can't catch it."}]}],
+"keys":[
+ {"title":"Eval","body":"A fixed set of questions you re-run after every change."},
+ {"title":"Named failure classes","body":"Each kind of mistake gets a name, so you can count and fix them."},
+ {"title":"Trace","body":"A record of every step in a run, with a trace id."},
+ {"title":"Flaky vs steady","body":"The real model varies, so run 5 passes to tell flaky from steady."},
+ {"title":"Regression check in CI","body":"Blocks a change if the score drops below the floor."},
+ {"title":"Graph","body":"The same loop drawn as boxes and arrows, in graph_agent.py."}]}

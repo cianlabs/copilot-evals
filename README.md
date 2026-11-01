@@ -6,6 +6,33 @@ It asks a fixed list of questions and writes down what the agent did. You can al
 
 If the agent proposes an action, this harness always says no. A restart is not run. A delete is not run.
 
+## Results at a glance
+
+![Before and after on the real model, 5 passes: 116 of 150 to 144 of 150](docs/img/m4_before_after.png)
+
+Before and after on the real model, 5 passes: 116 of 150 to 144 of 150.
+
+![M4: graphs, evals, and tracing for copilot-evals](docs/img/m4_graphic.png)
+
+M4 shows how this repo measures runbook-copilot: 30 test questions, traces, the fix, and a CI check that holds the score.
+
+The month before is the [M3 graphic](docs/img/m3_graphic.png): the agent loop, search, and human approval.
+
+## How we improve the copilot
+
+Each round names the failures, fixes the biggest group, and checks the score again. The dotted arrow is the next failure.
+
+```mermaid
+flowchart TD
+    questions["30 test questions"] --> passes["Run the copilot 5 passes on the real model"]
+    passes --> traces["Traces record every step"]
+    traces --> nameEach["Name each failure"]
+    nameEach --> fix["Fix the biggest group: a pull request from a cloud agent"]
+    fix --> compare["Re-run and compare: 116 to 144 of 150"]
+    compare --> ci["CI blocks regressions: floor 144 of 150"]
+    ci -.-> nameEach
+```
+
 ## Run the practice pass
 
 From this folder:
@@ -482,6 +509,7 @@ The latest set has to meet the numbers you wrote. If it does not, the check fail
 - `tests/test_regression.py` — the pytest checks for the named regression failures
 - `tests/test_judge.py` — the pytest checks for the judge. They use a fake judge and do not call a model
 - `tests/test_trace.py` — the tracer, the story printer, and the retrieval math
+- `tools/graphics/make_graphic.py` — draws the month graphics from `tools/graphics/data`. Png and gif files land in `docs/img`. Mp4 files land in `docs/video`
 
 ## What a practice pass looks like
 
