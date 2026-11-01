@@ -1,0 +1,4 @@
+{"type":"bars","out":"m4_before_after.png","title":"runbook-copilot: before and after PR 6",
+"subtitle":"Real model, 30 questions x 5 passes = 150 runs",
+"bars":[{"label":"Before PR 6","value":116,"total":150,"color":"blue"},{"label":"After PR 6","value":144,"total":150,"color":"green"}],
+"note":"Out-of-scope answers fell from 33 to 5."}

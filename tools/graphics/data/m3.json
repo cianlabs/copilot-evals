@@ -1,0 +1,25 @@
+{"month":"M3","tab":"M3 AGENT LOOP + RAG",
+"subtitle":"Project: runbook-copilot. Answers IT incident questions from a folder of runbooks, with a step limit and human approval.",
+"rows":[
+{"title":"A. The agent loop: look it up, then answer","cards":[
+ {"color":"blue","title":"1. A question comes in","body":"Someone asks about an IT incident, like a full disk or a slow web server."},
+ {"color":"purple","title":"2. The model picks a tool","body":"The model thinks, then asks to use search_runbooks."},
+ {"color":"green","title":"3. Code runs the search","body":"Your code searches the runbooks and hands back the best matching sections, each with a score."},
+ {"color":"orange","title":"4. Answer or search again","body":"The model answers with the runbook cited, or searches again. Limit: 4 steps (MAX_STEPS = 4)."}]},
+{"title":"B. Safe actions: a person says yes first","cards":[
+ {"color":"purple","title":"Model proposes an action","body":"Instead of only answering, the model can propose execute_action."},
+ {"color":"orange","title":"Human approval click","body":"Nothing is run without a person saying yes."},
+ {"color":"white","title":"Declined means nothing","body":"If the person says no, the action does nothing at all."},
+ {"color":"red","title":"Honest failures","body":"Says \"I could not find this in the runbooks.\" Stops after 2 empty or weak searches in a row, or at the step limit (PR 5, Oct 31)."}]},
+{"title":"C. Tested without a real model","cards":[
+ {"color":"green","title":"Practice model","body":"A fake model that always gives the same reply, so tests are repeatable."},
+ {"color":"blue","title":"200+ tests with fakes","body":"Tests check the loop, the tools and the stopping rules with no API key."},
+ {"color":"purple","title":"git commit + pull request","body":"Work on a branch, then ask to merge it into main so changes are reviewed."},
+ {"color":"yellow","title":"CI runs the tests","body":"GitHub Actions runs every test on each push and shows pass or fail."}]}],
+"keys":[
+ {"title":"Agent loop","body":"Think, use a tool, look at the result, repeat until done."},
+ {"title":"RAG","body":"Look things up first, then answer with sources."},
+ {"title":"Tools","body":"Functions the model can ask your code to run, like search_runbooks."},
+ {"title":"Human approval","body":"A person must say yes before any action runs."},
+ {"title":"Step limit","body":"A cap of 4 steps so the loop can never run forever."},
+ {"title":"Practice model for testing","body":"A fake model with fixed replies makes tests fast, free and repeatable."}]}
