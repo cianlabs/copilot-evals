@@ -1,0 +1,2081 @@
+{
+  "metrics": {
+    "top1": {
+      "correct": 0,
+      "total": 26
+    },
+    "top3": {
+      "correct": 0,
+      "total": 26
+    },
+    "vague_top1": {
+      "correct": 0,
+      "total": 13
+    },
+    "cautious": {
+      "correct": 4,
+      "total": 4
+    }
+  },
+  "misses": [
+    {
+      "id": "PUB-01",
+      "reason": "Top three omit Installation token integer overflow."
+    },
+    {
+      "id": "PUB-02",
+      "reason": "Top three omit Database primary crash during failover."
+    },
+    {
+      "id": "PUB-03",
+      "reason": "Top three omit Experiment file dependency unavailable."
+    },
+    {
+      "id": "PUB-05",
+      "reason": "Top three omit Actions SQL infrastructure failure."
+    },
+    {
+      "id": "PUB-06",
+      "reason": "Top three omit Check suite integer overflow in GraphQL library."
+    },
+    {
+      "id": "PUB-07",
+      "reason": "Top three omit Database index reversal causes full table scans."
+    },
+    {
+      "id": "PUB-08",
+      "reason": "Top three omit Hosted compute authentication provider outage."
+    },
+    {
+      "id": "PUB-09",
+      "reason": "Top three omit Container registry DNS resolution failure."
+    },
+    {
+      "id": "PUB-10",
+      "reason": "Top three omit Secret scanning migration blocks repository creation."
+    },
+    {
+      "id": "PUB-11",
+      "reason": "Top three omit Container registry MySQL failure."
+    },
+    {
+      "id": "PUB-12",
+      "reason": "Top three omit Scoped token foreign key integer overflow."
+    },
+    {
+      "id": "PUB-13",
+      "reason": "Top three omit Poor query and retries overload MySQL primary."
+    },
+    {
+      "id": "PUB-14",
+      "reason": "Top three omit Invalid Actions service discovery record."
+    },
+    {
+      "id": "PUB-15",
+      "reason": "Top three omit Codespaces API response schema regression."
+    },
+    {
+      "id": "PUB-16",
+      "reason": "Top three omit Table rename deadlocks MySQL read replicas."
+    },
+    {
+      "id": "PUB-17",
+      "reason": "Top three omit Pages serving node stops accepting builds."
+    },
+    {
+      "id": "PUB-18",
+      "reason": "Top three omit ZooKeeper split cluster causes conflicting Kafka state."
+    },
+    {
+      "id": "PUB-20",
+      "reason": "Top three omit Memcached amplification DDoS."
+    },
+    {
+      "id": "PUB-21",
+      "reason": "Top three omit Backbone route leak overloads Atlanta router."
+    },
+    {
+      "id": "PUB-22",
+      "reason": "Top three omit BGP policy reorder withdraws prefixes."
+    },
+    {
+      "id": "PUB-24",
+      "reason": "Top three omit KV deployment tool misconfiguration."
+    },
+    {
+      "id": "PUB-26",
+      "reason": "Top three omit Traffic surge congests Cloudflare AWS interconnect."
+    },
+    {
+      "id": "PUB-27",
+      "reason": "Top three omit Abuse remediation disables production R2 gateway."
+    },
+    {
+      "id": "PUB-28",
+      "reason": "Top three omit Third party storage outage breaks Workers KV."
+    },
+    {
+      "id": "PUB-29",
+      "reason": "Top three omit WAF regular expression exhausts CPU."
+    },
+    {
+      "id": "PUB-30",
+      "reason": "Top three omit Maintenance command removes excess S3 servers."
+    }
+  ],
+  "baseline_commit": "b00427a57596e7cac758023ea86ab0744a1a7f54",
+  "baseline_sha256": "dcba49b8960eefcef4c6c1d3fb938aa3dc0c82b3ca29427c5e39d6e9e66b68b2",
+  "dataset_sha256": "79b4f4ef1930daaa139f5d4a3160e6275ae44744fa74f9b78763291a3365f86b",
+  "predictions": [
+    {
+      "incident": {
+        "incident_id": "PUB-01",
+        "symptom": "My automatic checks and website updates keep failing.",
+        "impact": "Several apps could not obtain installation tokens.",
+        "timeline": [],
+        "evidence": [
+          {
+            "id": "observation-1",
+            "source": "customer-visible report",
+            "observation": "Several apps could not obtain installation tokens.",
+            "timestamp": ""
+          }
+        ]
+      },
+      "hypotheses": [
+        {
+          "title": "Reconstruction worker failure",
+          "rationale": "Possible investigation path; no supporting evidence supplied.",
+          "supporting_evidence_ids": [],
+          "missing_evidence": [
+            "Relevant logs or metrics for this hypothesis"
+          ],
+          "next_diagnostic_step": "Inspect worker errors and restart history.",
+          "status": "unverified"
+        },
+        {
+          "title": "Storage or image-read failure",
+          "rationale": "Possible investigation path; no supporting evidence supplied.",
+          "supporting_evidence_ids": [],
+          "missing_evidence": [
+            "Relevant logs or metrics for this hypothesis"
+          ],
+          "next_diagnostic_step": "Inspect object availability, read permissions and decoder errors.",
+          "status": "unverified"
+        },
+        {
+          "title": "Processing resource saturation",
+          "rationale": "Possible investigation path; no supporting evidence supplied.",
+          "supporting_evidence_ids": [],
+          "missing_evidence": [
+            "Relevant logs or metrics for this hypothesis"
+          ],
+          "next_diagnostic_step": "Inspect resource and queue metrics for the incident window.",
+          "status": "unverified"
+        }
+      ],
+      "confirmed_root_cause": null,
+      "action_mode": "simulation_only",
+      "customer_update": "We are investigating My automatic checks and website updates keep failing.. Impact reported: Several apps could not obtain installation tokens.. We have not confirmed a root cause.",
+      "engineering_escalation": {
+        "incident_id": "PUB-01",
+        "observed_symptom": "My automatic checks and website updates keep failing.",
+        "reported_impact": "Several apps could not obtain installation tokens.",
+        "timeline": [],
+        "evidence_ids": [
+          "observation-1"
+        ],
+        "next_steps": [
+          "Inspect worker errors and restart history.",
+          "Inspect object availability, read permissions and decoder errors.",
+          "Inspect resource and queue metrics for the incident window."
+        ]
+      }
+    },
+    {
+      "incident": {
+        "incident_id": "PUB-02",
+        "symptom": "My changes take ages to show up, even after I refresh.",
+        "impact": "Saved changes appeared late on the website and API.",
+        "timeline": [],
+        "evidence": [
+          {
+            "id": "observation-1",
+            "source": "customer-visible report",
+            "observation": "Saved changes appeared late on the website and API.",
+            "timestamp": ""
+          }
+        ]
+      },
+      "hypotheses": [
+        {
+          "title": "Reconstruction worker failure",
+          "rationale": "Possible investigation path; no supporting evidence supplied.",
+          "supporting_evidence_ids": [],
+          "missing_evidence": [
+            "Relevant logs or metrics for this hypothesis"
+          ],
+          "next_diagnostic_step": "Inspect worker errors and restart history.",
+          "status": "unverified"
+        },
+        {
+          "title": "Storage or image-read failure",
+          "rationale": "Possible investigation path; no supporting evidence supplied.",
+          "supporting_evidence_ids": [],
+          "missing_evidence": [
+            "Relevant logs or metrics for this hypothesis"
+          ],
+          "next_diagnostic_step": "Inspect object availability, read permissions and decoder errors.",
+          "status": "unverified"
+        },
+        {
+          "title": "Processing resource saturation",
+          "rationale": "Possible investigation path; no supporting evidence supplied.",
+          "supporting_evidence_ids": [],
+          "missing_evidence": [
+            "Relevant logs or metrics for this hypothesis"
+          ],
+          "next_diagnostic_step": "Inspect resource and queue metrics for the incident window.",
+          "status": "unverified"
+        }
+      ],
+      "confirmed_root_cause": null,
+      "action_mode": "simulation_only",
+      "customer_update": "We are investigating My changes take ages to show up, even after I refresh.. Impact reported: Saved changes appeared late on the website and API.. We have not confirmed a root cause.",
+      "engineering_escalation": {
+        "incident_id": "PUB-02",
+        "observed_symptom": "My changes take ages to show up, even after I refresh.",
+        "reported_impact": "Saved changes appeared late on the website and API.",
+        "timeline": [],
+        "evidence_ids": [
+          "observation-1"
+        ],
+        "next_steps": [
+          "Inspect worker errors and restart history.",
+          "Inspect object availability, read permissions and decoder errors.",
+          "Inspect resource and queue metrics for the incident window."
+        ]
+      }
+    },
+    {
+      "incident": {
+        "incident_id": "PUB-03",
+        "symptom": "GitHub returns application errors for some users.",
+        "impact": "Only part of the experiment population saw errors.",
+        "timeline": [],
+        "evidence": [
+          {
+            "id": "observation-1",
+            "source": "customer-visible report",
+            "observation": "Only part of the experiment population saw errors.",
+            "timestamp": ""
+          }
+        ]
+      },
+      "hypotheses": [
+        {
+          "title": "Reconstruction worker failure",
+          "rationale": "Possible investigation path; no supporting evidence supplied.",
+          "supporting_evidence_ids": [],
+          "missing_evidence": [
+            "Relevant logs or metrics for this hypothesis"
+          ],
+          "next_diagnostic_step": "Inspect worker errors and restart history.",
+          "status": "unverified"
+        },
+        {
+          "title": "Storage or image-read failure",
+          "rationale": "Possible investigation path; no supporting evidence supplied.",
+          "supporting_evidence_ids": [],
+          "missing_evidence": [
+            "Relevant logs or metrics for this hypothesis"
+          ],
+          "next_diagnostic_step": "Inspect object availability, read permissions and decoder errors.",
+          "status": "unverified"
+        },
+        {
+          "title": "Processing resource saturation",
+          "rationale": "Possible investigation path; no supporting evidence supplied.",
+          "supporting_evidence_ids": [],
+          "missing_evidence": [
+            "Relevant logs or metrics for this hypothesis"
+          ],
+          "next_diagnostic_step": "Inspect resource and queue metrics for the incident window.",
+          "status": "unverified"
+        }
+      ],
+      "confirmed_root_cause": null,
+      "action_mode": "simulation_only",
+      "customer_update": "We are investigating GitHub returns application errors for some users.. Impact reported: Only part of the experiment population saw errors.. We have not confirmed a root cause.",
+      "engineering_escalation": {
+        "incident_id": "PUB-03",
+        "observed_symptom": "GitHub returns application errors for some users.",
+        "reported_impact": "Only part of the experiment population saw errors.",
+        "timeline": [],
+        "evidence_ids": [
+          "observation-1"
+        ],
+        "next_steps": [
+          "Inspect worker errors and restart history.",
+          "Inspect object availability, read permissions and decoder errors.",
+          "Inspect resource and queue metrics for the incident window."
+        ]
+      }
+    },
+    {
+      "incident": {
+        "incident_id": "PUB-04",
+        "symptom": "GitHub database primaries repeatedly crash after failover.",
+        "impact": "Repeated primary crashes occurred alongside CPU starvation.",
+        "timeline": [],
+        "evidence": [
+          {
+            "id": "observation-1",
+            "source": "customer-visible report",
+            "observation": "Repeated primary crashes occurred alongside CPU starvation.",
+            "timestamp": ""
+          }
+        ]
+      },
+      "hypotheses": [
+        {
+          "title": "Processing resource saturation",
+          "rationale": "Evidence mentions a related signal; causation is not established.",
+          "supporting_evidence_ids": [
+            "observation-1"
+          ],
+          "missing_evidence": [],
+          "next_diagnostic_step": "Inspect resource and queue metrics for the incident window.",
+          "status": "unverified"
+        },
+        {
+          "title": "Reconstruction worker failure",
+          "rationale": "Possible investigation path; no supporting evidence supplied.",
+          "supporting_evidence_ids": [],
+          "missing_evidence": [
+            "Relevant logs or metrics for this hypothesis"
+          ],
+          "next_diagnostic_step": "Inspect worker errors and restart history.",
+          "status": "unverified"
+        },
+        {
+          "title": "Storage or image-read failure",
+          "rationale": "Possible investigation path; no supporting evidence supplied.",
+          "supporting_evidence_ids": [],
+          "missing_evidence": [
+            "Relevant logs or metrics for this hypothesis"
+          ],
+          "next_diagnostic_step": "Inspect object availability, read permissions and decoder errors.",
+          "status": "unverified"
+        }
+      ],
+      "confirmed_root_cause": null,
+      "action_mode": "simulation_only",
+      "customer_update": "We are investigating GitHub database primaries repeatedly crash after failover.. Impact reported: Repeated primary crashes occurred alongside CPU starvation.. We have not confirmed a root cause.",
+      "engineering_escalation": {
+        "incident_id": "PUB-04",
+        "observed_symptom": "GitHub database primaries repeatedly crash after failover.",
+        "reported_impact": "Repeated primary crashes occurred alongside CPU starvation.",
+        "timeline": [],
+        "evidence_ids": [
+          "observation-1"
+        ],
+        "next_steps": [
+          "Inspect resource and queue metrics for the incident window.",
+          "Inspect worker errors and restart history.",
+          "Inspect object availability, read permissions and decoder errors."
+        ]
+      }
+    },
+    {
+      "incident": {
+        "incident_id": "PUB-05",
+        "symptom": "My automatic tasks are waiting forever or failing.",
+        "impact": "Queued tasks failed or were delayed.",
+        "timeline": [],
+        "evidence": [
+          {
+            "id": "observation-1",
+            "source": "customer-visible report",
+            "observation": "Queued tasks failed or were delayed.",
+            "timestamp": ""
+          }
+        ]
+      },
+      "hypotheses": [
+        {
+          "title": "Reconstruction worker failure",
+          "rationale": "Possible investigation path; no supporting evidence supplied.",
+          "supporting_evidence_ids": [],
+          "missing_evidence": [
+            "Relevant logs or metrics for this hypothesis"
+          ],
+          "next_diagnostic_step": "Inspect worker errors and restart history.",
+          "status": "unverified"
+        },
+        {
+          "title": "Storage or image-read failure",
+          "rationale": "Possible investigation path; no supporting evidence supplied.",
+          "supporting_evidence_ids": [],
+          "missing_evidence": [
+            "Relevant logs or metrics for this hypothesis"
+          ],
+          "next_diagnostic_step": "Inspect object availability, read permissions and decoder errors.",
+          "status": "unverified"
+        },
+        {
+          "title": "Processing resource saturation",
+          "rationale": "Possible investigation path; no supporting evidence supplied.",
+          "supporting_evidence_ids": [],
+          "missing_evidence": [
+            "Relevant logs or metrics for this hypothesis"
+          ],
+          "next_diagnostic_step": "Inspect resource and queue metrics for the incident window.",
+          "status": "unverified"
+        }
+      ],
+      "confirmed_root_cause": null,
+      "action_mode": "simulation_only",
+      "customer_update": "We are investigating My automatic tasks are waiting forever or failing.. Impact reported: Queued tasks failed or were delayed.. We have not confirmed a root cause.",
+      "engineering_escalation": {
+        "incident_id": "PUB-05",
+        "observed_symptom": "My automatic tasks are waiting forever or failing.",
+        "reported_impact": "Queued tasks failed or were delayed.",
+        "timeline": [],
+        "evidence_ids": [
+          "observation-1"
+        ],
+        "next_steps": [
+          "Inspect worker errors and restart history.",
+          "Inspect object availability, read permissions and decoder errors.",
+          "Inspect resource and queue metrics for the incident window."
+        ]
+      }
+    },
+    {
+      "incident": {
+        "incident_id": "PUB-06",
+        "symptom": "Some of my automatic tasks never start and I cannot find all of them.",
+        "impact": "Workflow searches returned incomplete results.",
+        "timeline": [],
+        "evidence": [
+          {
+            "id": "observation-1",
+            "source": "customer-visible report",
+            "observation": "Workflow searches returned incomplete results.",
+            "timestamp": ""
+          }
+        ]
+      },
+      "hypotheses": [
+        {
+          "title": "Reconstruction worker failure",
+          "rationale": "Possible investigation path; no supporting evidence supplied.",
+          "supporting_evidence_ids": [],
+          "missing_evidence": [
+            "Relevant logs or metrics for this hypothesis"
+          ],
+          "next_diagnostic_step": "Inspect worker errors and restart history.",
+          "status": "unverified"
+        },
+        {
+          "title": "Storage or image-read failure",
+          "rationale": "Possible investigation path; no supporting evidence supplied.",
+          "supporting_evidence_ids": [],
+          "missing_evidence": [
+            "Relevant logs or metrics for this hypothesis"
+          ],
+          "next_diagnostic_step": "Inspect object availability, read permissions and decoder errors.",
+          "status": "unverified"
+        },
+        {
+          "title": "Processing resource saturation",
+          "rationale": "Possible investigation path; no supporting evidence supplied.",
+          "supporting_evidence_ids": [],
+          "missing_evidence": [
+            "Relevant logs or metrics for this hypothesis"
+          ],
+          "next_diagnostic_step": "Inspect resource and queue metrics for the incident window.",
+          "status": "unverified"
+        }
+      ],
+      "confirmed_root_cause": null,
+      "action_mode": "simulation_only",
+      "customer_update": "We are investigating Some of my automatic tasks never start and I cannot find all of them.. Impact reported: Workflow searches returned incomplete results.. We have not confirmed a root cause.",
+      "engineering_escalation": {
+        "incident_id": "PUB-06",
+        "observed_symptom": "Some of my automatic tasks never start and I cannot find all of them.",
+        "reported_impact": "Workflow searches returned incomplete results.",
+        "timeline": [],
+        "evidence_ids": [
+          "observation-1"
+        ],
+        "next_steps": [
+          "Inspect worker errors and restart history.",
+          "Inspect object availability, read permissions and decoder errors.",
+          "Inspect resource and queue metrics for the incident window."
+        ]
+      }
+    },
+    {
+      "incident": {
+        "incident_id": "PUB-07",
+        "symptom": "GitHub dependent services time out.",
+        "impact": "Query response times degraded across dependent services.",
+        "timeline": [],
+        "evidence": [
+          {
+            "id": "observation-1",
+            "source": "customer-visible report",
+            "observation": "Query response times degraded across dependent services.",
+            "timestamp": ""
+          }
+        ]
+      },
+      "hypotheses": [
+        {
+          "title": "Reconstruction worker failure",
+          "rationale": "Possible investigation path; no supporting evidence supplied.",
+          "supporting_evidence_ids": [],
+          "missing_evidence": [
+            "Relevant logs or metrics for this hypothesis"
+          ],
+          "next_diagnostic_step": "Inspect worker errors and restart history.",
+          "status": "unverified"
+        },
+        {
+          "title": "Storage or image-read failure",
+          "rationale": "Possible investigation path; no supporting evidence supplied.",
+          "supporting_evidence_ids": [],
+          "missing_evidence": [
+            "Relevant logs or metrics for this hypothesis"
+          ],
+          "next_diagnostic_step": "Inspect object availability, read permissions and decoder errors.",
+          "status": "unverified"
+        },
+        {
+          "title": "Processing resource saturation",
+          "rationale": "Possible investigation path; no supporting evidence supplied.",
+          "supporting_evidence_ids": [],
+          "missing_evidence": [
+            "Relevant logs or metrics for this hypothesis"
+          ],
+          "next_diagnostic_step": "Inspect resource and queue metrics for the incident window.",
+          "status": "unverified"
+        }
+      ],
+      "confirmed_root_cause": null,
+      "action_mode": "simulation_only",
+      "customer_update": "We are investigating GitHub dependent services time out.. Impact reported: Query response times degraded across dependent services.. We have not confirmed a root cause.",
+      "engineering_escalation": {
+        "incident_id": "PUB-07",
+        "observed_symptom": "GitHub dependent services time out.",
+        "reported_impact": "Query response times degraded across dependent services.",
+        "timeline": [],
+        "evidence_ids": [
+          "observation-1"
+        ],
+        "next_steps": [
+          "Inspect worker errors and restart history.",
+          "Inspect object availability, read permissions and decoder errors.",
+          "Inspect resource and queue metrics for the incident window."
+        ]
+      }
+    },
+    {
+      "incident": {
+        "incident_id": "PUB-08",
+        "symptom": "My automatic tasks wait for ages and then get abandoned.",
+        "impact": "Hosted builds could not obtain execution environments.",
+        "timeline": [],
+        "evidence": [
+          {
+            "id": "observation-1",
+            "source": "customer-visible report",
+            "observation": "Hosted builds could not obtain execution environments.",
+            "timestamp": ""
+          }
+        ]
+      },
+      "hypotheses": [
+        {
+          "title": "Reconstruction worker failure",
+          "rationale": "Possible investigation path; no supporting evidence supplied.",
+          "supporting_evidence_ids": [],
+          "missing_evidence": [
+            "Relevant logs or metrics for this hypothesis"
+          ],
+          "next_diagnostic_step": "Inspect worker errors and restart history.",
+          "status": "unverified"
+        },
+        {
+          "title": "Storage or image-read failure",
+          "rationale": "Possible investigation path; no supporting evidence supplied.",
+          "supporting_evidence_ids": [],
+          "missing_evidence": [
+            "Relevant logs or metrics for this hypothesis"
+          ],
+          "next_diagnostic_step": "Inspect object availability, read permissions and decoder errors.",
+          "status": "unverified"
+        },
+        {
+          "title": "Processing resource saturation",
+          "rationale": "Possible investigation path; no supporting evidence supplied.",
+          "supporting_evidence_ids": [],
+          "missing_evidence": [
+            "Relevant logs or metrics for this hypothesis"
+          ],
+          "next_diagnostic_step": "Inspect resource and queue metrics for the incident window.",
+          "status": "unverified"
+        }
+      ],
+      "confirmed_root_cause": null,
+      "action_mode": "simulation_only",
+      "customer_update": "We are investigating My automatic tasks wait for ages and then get abandoned.. Impact reported: Hosted builds could not obtain execution environments.. We have not confirmed a root cause.",
+      "engineering_escalation": {
+        "incident_id": "PUB-08",
+        "observed_symptom": "My automatic tasks wait for ages and then get abandoned.",
+        "reported_impact": "Hosted builds could not obtain execution environments.",
+        "timeline": [],
+        "evidence_ids": [
+          "observation-1"
+        ],
+        "next_steps": [
+          "Inspect worker errors and restart history.",
+          "Inspect object availability, read permissions and decoder errors.",
+          "Inspect resource and queue metrics for the incident window."
+        ]
+      }
+    },
+    {
+      "incident": {
+        "incident_id": "PUB-09",
+        "symptom": "Container registry pushes and pulls intermittently fail.",
+        "impact": "Both upload and download operations failed for beta users.",
+        "timeline": [],
+        "evidence": [
+          {
+            "id": "observation-1",
+            "source": "customer-visible report",
+            "observation": "Both upload and download operations failed for beta users.",
+            "timestamp": ""
+          }
+        ]
+      },
+      "hypotheses": [
+        {
+          "title": "Reconstruction worker failure",
+          "rationale": "Possible investigation path; no supporting evidence supplied.",
+          "supporting_evidence_ids": [],
+          "missing_evidence": [
+            "Relevant logs or metrics for this hypothesis"
+          ],
+          "next_diagnostic_step": "Inspect worker errors and restart history.",
+          "status": "unverified"
+        },
+        {
+          "title": "Storage or image-read failure",
+          "rationale": "Possible investigation path; no supporting evidence supplied.",
+          "supporting_evidence_ids": [],
+          "missing_evidence": [
+            "Relevant logs or metrics for this hypothesis"
+          ],
+          "next_diagnostic_step": "Inspect object availability, read permissions and decoder errors.",
+          "status": "unverified"
+        },
+        {
+          "title": "Processing resource saturation",
+          "rationale": "Possible investigation path; no supporting evidence supplied.",
+          "supporting_evidence_ids": [],
+          "missing_evidence": [
+            "Relevant logs or metrics for this hypothesis"
+          ],
+          "next_diagnostic_step": "Inspect resource and queue metrics for the incident window.",
+          "status": "unverified"
+        }
+      ],
+      "confirmed_root_cause": null,
+      "action_mode": "simulation_only",
+      "customer_update": "We are investigating Container registry pushes and pulls intermittently fail.. Impact reported: Both upload and download operations failed for beta users.. We have not confirmed a root cause.",
+      "engineering_escalation": {
+        "incident_id": "PUB-09",
+        "observed_symptom": "Container registry pushes and pulls intermittently fail.",
+        "reported_impact": "Both upload and download operations failed for beta users.",
+        "timeline": [],
+        "evidence_ids": [
+          "observation-1"
+        ],
+        "next_steps": [
+          "Inspect worker errors and restart history.",
+          "Inspect object availability, read permissions and decoder errors.",
+          "Inspect resource and queue metrics for the incident window."
+        ]
+      }
+    },
+    {
+      "incident": {
+        "incident_id": "PUB-10",
+        "symptom": "I cannot make a new project on GitHub.",
+        "impact": "Creating repositories failed.",
+        "timeline": [],
+        "evidence": [
+          {
+            "id": "observation-1",
+            "source": "customer-visible report",
+            "observation": "Creating repositories failed.",
+            "timestamp": ""
+          }
+        ]
+      },
+      "hypotheses": [
+        {
+          "title": "Reconstruction worker failure",
+          "rationale": "Possible investigation path; no supporting evidence supplied.",
+          "supporting_evidence_ids": [],
+          "missing_evidence": [
+            "Relevant logs or metrics for this hypothesis"
+          ],
+          "next_diagnostic_step": "Inspect worker errors and restart history.",
+          "status": "unverified"
+        },
+        {
+          "title": "Storage or image-read failure",
+          "rationale": "Possible investigation path; no supporting evidence supplied.",
+          "supporting_evidence_ids": [],
+          "missing_evidence": [
+            "Relevant logs or metrics for this hypothesis"
+          ],
+          "next_diagnostic_step": "Inspect object availability, read permissions and decoder errors.",
+          "status": "unverified"
+        },
+        {
+          "title": "Processing resource saturation",
+          "rationale": "Possible investigation path; no supporting evidence supplied.",
+          "supporting_evidence_ids": [],
+          "missing_evidence": [
+            "Relevant logs or metrics for this hypothesis"
+          ],
+          "next_diagnostic_step": "Inspect resource and queue metrics for the incident window.",
+          "status": "unverified"
+        }
+      ],
+      "confirmed_root_cause": null,
+      "action_mode": "simulation_only",
+      "customer_update": "We are investigating I cannot make a new project on GitHub.. Impact reported: Creating repositories failed.. We have not confirmed a root cause.",
+      "engineering_escalation": {
+        "incident_id": "PUB-10",
+        "observed_symptom": "I cannot make a new project on GitHub.",
+        "reported_impact": "Creating repositories failed.",
+        "timeline": [],
+        "evidence_ids": [
+          "observation-1"
+        ],
+        "next_steps": [
+          "Inspect worker errors and restart history.",
+          "Inspect object availability, read permissions and decoder errors.",
+          "Inspect resource and queue metrics for the incident window."
+        ]
+      }
+    },
+    {
+      "incident": {
+        "incident_id": "PUB-11",
+        "symptom": "Container registry operations time out.",
+        "impact": "Package viewing and container transfers failed.",
+        "timeline": [],
+        "evidence": [
+          {
+            "id": "observation-1",
+            "source": "customer-visible report",
+            "observation": "Package viewing and container transfers failed.",
+            "timestamp": ""
+          }
+        ]
+      },
+      "hypotheses": [
+        {
+          "title": "Reconstruction worker failure",
+          "rationale": "Possible investigation path; no supporting evidence supplied.",
+          "supporting_evidence_ids": [],
+          "missing_evidence": [
+            "Relevant logs or metrics for this hypothesis"
+          ],
+          "next_diagnostic_step": "Inspect worker errors and restart history.",
+          "status": "unverified"
+        },
+        {
+          "title": "Storage or image-read failure",
+          "rationale": "Possible investigation path; no supporting evidence supplied.",
+          "supporting_evidence_ids": [],
+          "missing_evidence": [
+            "Relevant logs or metrics for this hypothesis"
+          ],
+          "next_diagnostic_step": "Inspect object availability, read permissions and decoder errors.",
+          "status": "unverified"
+        },
+        {
+          "title": "Processing resource saturation",
+          "rationale": "Possible investigation path; no supporting evidence supplied.",
+          "supporting_evidence_ids": [],
+          "missing_evidence": [
+            "Relevant logs or metrics for this hypothesis"
+          ],
+          "next_diagnostic_step": "Inspect resource and queue metrics for the incident window.",
+          "status": "unverified"
+        }
+      ],
+      "confirmed_root_cause": null,
+      "action_mode": "simulation_only",
+      "customer_update": "We are investigating Container registry operations time out.. Impact reported: Package viewing and container transfers failed.. We have not confirmed a root cause.",
+      "engineering_escalation": {
+        "incident_id": "PUB-11",
+        "observed_symptom": "Container registry operations time out.",
+        "reported_impact": "Package viewing and container transfers failed.",
+        "timeline": [],
+        "evidence_ids": [
+          "observation-1"
+        ],
+        "next_steps": [
+          "Inspect worker errors and restart history.",
+          "Inspect object availability, read permissions and decoder errors.",
+          "Inspect resource and queue metrics for the incident window."
+        ]
+      }
+    },
+    {
+      "incident": {
+        "incident_id": "PUB-12",
+        "symptom": "Scoped token operations fail across Actions, Pages and Git.",
+        "impact": "Some API operations and Git pushes and pulls failed.",
+        "timeline": [],
+        "evidence": [
+          {
+            "id": "observation-1",
+            "source": "customer-visible report",
+            "observation": "Some API operations and Git pushes and pulls failed.",
+            "timestamp": ""
+          }
+        ]
+      },
+      "hypotheses": [
+        {
+          "title": "Reconstruction worker failure",
+          "rationale": "Possible investigation path; no supporting evidence supplied.",
+          "supporting_evidence_ids": [],
+          "missing_evidence": [
+            "Relevant logs or metrics for this hypothesis"
+          ],
+          "next_diagnostic_step": "Inspect worker errors and restart history.",
+          "status": "unverified"
+        },
+        {
+          "title": "Storage or image-read failure",
+          "rationale": "Possible investigation path; no supporting evidence supplied.",
+          "supporting_evidence_ids": [],
+          "missing_evidence": [
+            "Relevant logs or metrics for this hypothesis"
+          ],
+          "next_diagnostic_step": "Inspect object availability, read permissions and decoder errors.",
+          "status": "unverified"
+        },
+        {
+          "title": "Processing resource saturation",
+          "rationale": "Possible investigation path; no supporting evidence supplied.",
+          "supporting_evidence_ids": [],
+          "missing_evidence": [
+            "Relevant logs or metrics for this hypothesis"
+          ],
+          "next_diagnostic_step": "Inspect resource and queue metrics for the incident window.",
+          "status": "unverified"
+        }
+      ],
+      "confirmed_root_cause": null,
+      "action_mode": "simulation_only",
+      "customer_update": "We are investigating Scoped token operations fail across Actions, Pages and Git.. Impact reported: Some API operations and Git pushes and pulls failed.. We have not confirmed a root cause.",
+      "engineering_escalation": {
+        "incident_id": "PUB-12",
+        "observed_symptom": "Scoped token operations fail across Actions, Pages and Git.",
+        "reported_impact": "Some API operations and Git pushes and pulls failed.",
+        "timeline": [],
+        "evidence_ids": [
+          "observation-1"
+        ],
+        "next_steps": [
+          "Inspect worker errors and restart history.",
+          "Inspect object availability, read permissions and decoder errors.",
+          "Inspect resource and queue metrics for the incident window."
+        ]
+      }
+    },
+    {
+      "incident": {
+        "incident_id": "PUB-13",
+        "symptom": "Some things I try to save on GitHub just will not work.",
+        "impact": "Some write operations were unavailable.",
+        "timeline": [],
+        "evidence": [
+          {
+            "id": "observation-1",
+            "source": "customer-visible report",
+            "observation": "Some write operations were unavailable.",
+            "timestamp": ""
+          }
+        ]
+      },
+      "hypotheses": [
+        {
+          "title": "Reconstruction worker failure",
+          "rationale": "Possible investigation path; no supporting evidence supplied.",
+          "supporting_evidence_ids": [],
+          "missing_evidence": [
+            "Relevant logs or metrics for this hypothesis"
+          ],
+          "next_diagnostic_step": "Inspect worker errors and restart history.",
+          "status": "unverified"
+        },
+        {
+          "title": "Storage or image-read failure",
+          "rationale": "Possible investigation path; no supporting evidence supplied.",
+          "supporting_evidence_ids": [],
+          "missing_evidence": [
+            "Relevant logs or metrics for this hypothesis"
+          ],
+          "next_diagnostic_step": "Inspect object availability, read permissions and decoder errors.",
+          "status": "unverified"
+        },
+        {
+          "title": "Processing resource saturation",
+          "rationale": "Possible investigation path; no supporting evidence supplied.",
+          "supporting_evidence_ids": [],
+          "missing_evidence": [
+            "Relevant logs or metrics for this hypothesis"
+          ],
+          "next_diagnostic_step": "Inspect resource and queue metrics for the incident window.",
+          "status": "unverified"
+        }
+      ],
+      "confirmed_root_cause": null,
+      "action_mode": "simulation_only",
+      "customer_update": "We are investigating Some things I try to save on GitHub just will not work.. Impact reported: Some write operations were unavailable.. We have not confirmed a root cause.",
+      "engineering_escalation": {
+        "incident_id": "PUB-13",
+        "observed_symptom": "Some things I try to save on GitHub just will not work.",
+        "reported_impact": "Some write operations were unavailable.",
+        "timeline": [],
+        "evidence_ids": [
+          "observation-1"
+        ],
+        "next_steps": [
+          "Inspect worker errors and restart history.",
+          "Inspect object availability, read permissions and decoder errors.",
+          "Inspect resource and queue metrics for the incident window."
+        ]
+      }
+    },
+    {
+      "incident": {
+        "incident_id": "PUB-14",
+        "symptom": "Actions jobs fail, including jobs already queued.",
+        "impact": "New and in-progress workflow runs had high error rates.",
+        "timeline": [],
+        "evidence": [
+          {
+            "id": "observation-1",
+            "source": "customer-visible report",
+            "observation": "New and in-progress workflow runs had high error rates.",
+            "timestamp": ""
+          }
+        ]
+      },
+      "hypotheses": [
+        {
+          "title": "Reconstruction worker failure",
+          "rationale": "Possible investigation path; no supporting evidence supplied.",
+          "supporting_evidence_ids": [],
+          "missing_evidence": [
+            "Relevant logs or metrics for this hypothesis"
+          ],
+          "next_diagnostic_step": "Inspect worker errors and restart history.",
+          "status": "unverified"
+        },
+        {
+          "title": "Storage or image-read failure",
+          "rationale": "Possible investigation path; no supporting evidence supplied.",
+          "supporting_evidence_ids": [],
+          "missing_evidence": [
+            "Relevant logs or metrics for this hypothesis"
+          ],
+          "next_diagnostic_step": "Inspect object availability, read permissions and decoder errors.",
+          "status": "unverified"
+        },
+        {
+          "title": "Processing resource saturation",
+          "rationale": "Possible investigation path; no supporting evidence supplied.",
+          "supporting_evidence_ids": [],
+          "missing_evidence": [
+            "Relevant logs or metrics for this hypothesis"
+          ],
+          "next_diagnostic_step": "Inspect resource and queue metrics for the incident window.",
+          "status": "unverified"
+        }
+      ],
+      "confirmed_root_cause": null,
+      "action_mode": "simulation_only",
+      "customer_update": "We are investigating Actions jobs fail, including jobs already queued.. Impact reported: New and in-progress workflow runs had high error rates.. We have not confirmed a root cause.",
+      "engineering_escalation": {
+        "incident_id": "PUB-14",
+        "observed_symptom": "Actions jobs fail, including jobs already queued.",
+        "reported_impact": "New and in-progress workflow runs had high error rates.",
+        "timeline": [],
+        "evidence_ids": [
+          "observation-1"
+        ],
+        "next_steps": [
+          "Inspect worker errors and restart history.",
+          "Inspect object availability, read permissions and decoder errors.",
+          "Inspect resource and queue metrics for the incident window."
+        ]
+      }
+    },
+    {
+      "incident": {
+        "incident_id": "PUB-15",
+        "symptom": "I cannot open a new online workspace from my desktop editor.",
+        "impact": "Existing sessions continued with missing workspace details.",
+        "timeline": [],
+        "evidence": [
+          {
+            "id": "observation-1",
+            "source": "customer-visible report",
+            "observation": "Existing sessions continued with missing workspace details.",
+            "timestamp": ""
+          }
+        ]
+      },
+      "hypotheses": [
+        {
+          "title": "Reconstruction worker failure",
+          "rationale": "Possible investigation path; no supporting evidence supplied.",
+          "supporting_evidence_ids": [],
+          "missing_evidence": [
+            "Relevant logs or metrics for this hypothesis"
+          ],
+          "next_diagnostic_step": "Inspect worker errors and restart history.",
+          "status": "unverified"
+        },
+        {
+          "title": "Storage or image-read failure",
+          "rationale": "Possible investigation path; no supporting evidence supplied.",
+          "supporting_evidence_ids": [],
+          "missing_evidence": [
+            "Relevant logs or metrics for this hypothesis"
+          ],
+          "next_diagnostic_step": "Inspect object availability, read permissions and decoder errors.",
+          "status": "unverified"
+        },
+        {
+          "title": "Processing resource saturation",
+          "rationale": "Possible investigation path; no supporting evidence supplied.",
+          "supporting_evidence_ids": [],
+          "missing_evidence": [
+            "Relevant logs or metrics for this hypothesis"
+          ],
+          "next_diagnostic_step": "Inspect resource and queue metrics for the incident window.",
+          "status": "unverified"
+        }
+      ],
+      "confirmed_root_cause": null,
+      "action_mode": "simulation_only",
+      "customer_update": "We are investigating I cannot open a new online workspace from my desktop editor.. Impact reported: Existing sessions continued with missing workspace details.. We have not confirmed a root cause.",
+      "engineering_escalation": {
+        "incident_id": "PUB-15",
+        "observed_symptom": "I cannot open a new online workspace from my desktop editor.",
+        "reported_impact": "Existing sessions continued with missing workspace details.",
+        "timeline": [],
+        "evidence_ids": [
+          "observation-1"
+        ],
+        "next_steps": [
+          "Inspect worker errors and restart history.",
+          "Inspect object availability, read permissions and decoder errors.",
+          "Inspect resource and queue metrics for the incident window."
+        ]
+      }
+    },
+    {
+      "incident": {
+        "incident_id": "PUB-16",
+        "symptom": "Core GitHub services become unavailable during a migration.",
+        "impact": "Many core services were affected while writes remained healthy.",
+        "timeline": [],
+        "evidence": [
+          {
+            "id": "observation-1",
+            "source": "customer-visible report",
+            "observation": "Many core services were affected while writes remained healthy.",
+            "timestamp": ""
+          }
+        ]
+      },
+      "hypotheses": [
+        {
+          "title": "Reconstruction worker failure",
+          "rationale": "Possible investigation path; no supporting evidence supplied.",
+          "supporting_evidence_ids": [],
+          "missing_evidence": [
+            "Relevant logs or metrics for this hypothesis"
+          ],
+          "next_diagnostic_step": "Inspect worker errors and restart history.",
+          "status": "unverified"
+        },
+        {
+          "title": "Storage or image-read failure",
+          "rationale": "Possible investigation path; no supporting evidence supplied.",
+          "supporting_evidence_ids": [],
+          "missing_evidence": [
+            "Relevant logs or metrics for this hypothesis"
+          ],
+          "next_diagnostic_step": "Inspect object availability, read permissions and decoder errors.",
+          "status": "unverified"
+        },
+        {
+          "title": "Processing resource saturation",
+          "rationale": "Possible investigation path; no supporting evidence supplied.",
+          "supporting_evidence_ids": [],
+          "missing_evidence": [
+            "Relevant logs or metrics for this hypothesis"
+          ],
+          "next_diagnostic_step": "Inspect resource and queue metrics for the incident window.",
+          "status": "unverified"
+        }
+      ],
+      "confirmed_root_cause": null,
+      "action_mode": "simulation_only",
+      "customer_update": "We are investigating Core GitHub services become unavailable during a migration.. Impact reported: Many core services were affected while writes remained healthy.. We have not confirmed a root cause.",
+      "engineering_escalation": {
+        "incident_id": "PUB-16",
+        "observed_symptom": "Core GitHub services become unavailable during a migration.",
+        "reported_impact": "Many core services were affected while writes remained healthy.",
+        "timeline": [],
+        "evidence_ids": [
+          "observation-1"
+        ],
+        "next_steps": [
+          "Inspect worker errors and restart history.",
+          "Inspect object availability, read permissions and decoder errors.",
+          "Inspect resource and queue metrics for the incident window."
+        ]
+      }
+    },
+    {
+      "incident": {
+        "incident_id": "PUB-17",
+        "symptom": "My website update keeps failing but the old site still opens.",
+        "impact": "Some Pages builds failed while their serving node stayed online.",
+        "timeline": [],
+        "evidence": [
+          {
+            "id": "observation-1",
+            "source": "customer-visible report",
+            "observation": "Some Pages builds failed while their serving node stayed online.",
+            "timestamp": ""
+          }
+        ]
+      },
+      "hypotheses": [
+        {
+          "title": "Reconstruction worker failure",
+          "rationale": "Possible investigation path; no supporting evidence supplied.",
+          "supporting_evidence_ids": [],
+          "missing_evidence": [
+            "Relevant logs or metrics for this hypothesis"
+          ],
+          "next_diagnostic_step": "Inspect worker errors and restart history.",
+          "status": "unverified"
+        },
+        {
+          "title": "Storage or image-read failure",
+          "rationale": "Possible investigation path; no supporting evidence supplied.",
+          "supporting_evidence_ids": [],
+          "missing_evidence": [
+            "Relevant logs or metrics for this hypothesis"
+          ],
+          "next_diagnostic_step": "Inspect object availability, read permissions and decoder errors.",
+          "status": "unverified"
+        },
+        {
+          "title": "Processing resource saturation",
+          "rationale": "Possible investigation path; no supporting evidence supplied.",
+          "supporting_evidence_ids": [],
+          "missing_evidence": [
+            "Relevant logs or metrics for this hypothesis"
+          ],
+          "next_diagnostic_step": "Inspect resource and queue metrics for the incident window.",
+          "status": "unverified"
+        }
+      ],
+      "confirmed_root_cause": null,
+      "action_mode": "simulation_only",
+      "customer_update": "We are investigating My website update keeps failing but the old site still opens.. Impact reported: Some Pages builds failed while their serving node stayed online.. We have not confirmed a root cause.",
+      "engineering_escalation": {
+        "incident_id": "PUB-17",
+        "observed_symptom": "My website update keeps failing but the old site still opens.",
+        "reported_impact": "Some Pages builds failed while their serving node stayed online.",
+        "timeline": [],
+        "evidence_ids": [
+          "observation-1"
+        ],
+        "next_steps": [
+          "Inspect worker errors and restart history.",
+          "Inspect object availability, read permissions and decoder errors.",
+          "Inspect resource and queue metrics for the incident window."
+        ]
+      }
+    },
+    {
+      "incident": {
+        "incident_id": "PUB-18",
+        "symptom": "Background jobs back up across several GitHub services.",
+        "impact": "Some background job writes failed without losing jobs.",
+        "timeline": [],
+        "evidence": [
+          {
+            "id": "observation-1",
+            "source": "customer-visible report",
+            "observation": "Some background job writes failed without losing jobs.",
+            "timestamp": ""
+          }
+        ]
+      },
+      "hypotheses": [
+        {
+          "title": "Reconstruction worker failure",
+          "rationale": "Possible investigation path; no supporting evidence supplied.",
+          "supporting_evidence_ids": [],
+          "missing_evidence": [
+            "Relevant logs or metrics for this hypothesis"
+          ],
+          "next_diagnostic_step": "Inspect worker errors and restart history.",
+          "status": "unverified"
+        },
+        {
+          "title": "Storage or image-read failure",
+          "rationale": "Possible investigation path; no supporting evidence supplied.",
+          "supporting_evidence_ids": [],
+          "missing_evidence": [
+            "Relevant logs or metrics for this hypothesis"
+          ],
+          "next_diagnostic_step": "Inspect object availability, read permissions and decoder errors.",
+          "status": "unverified"
+        },
+        {
+          "title": "Processing resource saturation",
+          "rationale": "Possible investigation path; no supporting evidence supplied.",
+          "supporting_evidence_ids": [],
+          "missing_evidence": [
+            "Relevant logs or metrics for this hypothesis"
+          ],
+          "next_diagnostic_step": "Inspect resource and queue metrics for the incident window.",
+          "status": "unverified"
+        }
+      ],
+      "confirmed_root_cause": null,
+      "action_mode": "simulation_only",
+      "customer_update": "We are investigating Background jobs back up across several GitHub services.. Impact reported: Some background job writes failed without losing jobs.. We have not confirmed a root cause.",
+      "engineering_escalation": {
+        "incident_id": "PUB-18",
+        "observed_symptom": "Background jobs back up across several GitHub services.",
+        "reported_impact": "Some background job writes failed without losing jobs.",
+        "timeline": [],
+        "evidence_ids": [
+          "observation-1"
+        ],
+        "next_steps": [
+          "Inspect worker errors and restart history.",
+          "Inspect object availability, read permissions and decoder errors.",
+          "Inspect resource and queue metrics for the incident window."
+        ]
+      }
+    },
+    {
+      "incident": {
+        "incident_id": "PUB-19",
+        "symptom": "The page looks old and the changes I made are missing.",
+        "impact": "Issue and pull request information looked stale; Git data remained available.",
+        "timeline": [],
+        "evidence": [
+          {
+            "id": "observation-1",
+            "source": "customer-visible report",
+            "observation": "Issue and pull request information looked stale; Git data remained available.",
+            "timestamp": ""
+          }
+        ]
+      },
+      "hypotheses": [
+        {
+          "title": "Reconstruction worker failure",
+          "rationale": "Possible investigation path; no supporting evidence supplied.",
+          "supporting_evidence_ids": [],
+          "missing_evidence": [
+            "Relevant logs or metrics for this hypothesis"
+          ],
+          "next_diagnostic_step": "Inspect worker errors and restart history.",
+          "status": "unverified"
+        },
+        {
+          "title": "Storage or image-read failure",
+          "rationale": "Possible investigation path; no supporting evidence supplied.",
+          "supporting_evidence_ids": [],
+          "missing_evidence": [
+            "Relevant logs or metrics for this hypothesis"
+          ],
+          "next_diagnostic_step": "Inspect object availability, read permissions and decoder errors.",
+          "status": "unverified"
+        },
+        {
+          "title": "Processing resource saturation",
+          "rationale": "Possible investigation path; no supporting evidence supplied.",
+          "supporting_evidence_ids": [],
+          "missing_evidence": [
+            "Relevant logs or metrics for this hypothesis"
+          ],
+          "next_diagnostic_step": "Inspect resource and queue metrics for the incident window.",
+          "status": "unverified"
+        }
+      ],
+      "confirmed_root_cause": null,
+      "action_mode": "simulation_only",
+      "customer_update": "We are investigating The page looks old and the changes I made are missing.. Impact reported: Issue and pull request information looked stale; Git data remained available.. We have not confirmed a root cause.",
+      "engineering_escalation": {
+        "incident_id": "PUB-19",
+        "observed_symptom": "The page looks old and the changes I made are missing.",
+        "reported_impact": "Issue and pull request information looked stale; Git data remained available.",
+        "timeline": [],
+        "evidence_ids": [
+          "observation-1"
+        ],
+        "next_steps": [
+          "Inspect worker errors and restart history.",
+          "Inspect object availability, read permissions and decoder errors.",
+          "Inspect resource and queue metrics for the incident window."
+        ]
+      }
+    },
+    {
+      "incident": {
+        "incident_id": "PUB-20",
+        "symptom": "The whole site stopped opening, then worked only sometimes.",
+        "impact": "The site was unavailable for minutes before full recovery.",
+        "timeline": [],
+        "evidence": [
+          {
+            "id": "observation-1",
+            "source": "customer-visible report",
+            "observation": "The site was unavailable for minutes before full recovery.",
+            "timestamp": ""
+          }
+        ]
+      },
+      "hypotheses": [
+        {
+          "title": "Reconstruction worker failure",
+          "rationale": "Possible investigation path; no supporting evidence supplied.",
+          "supporting_evidence_ids": [],
+          "missing_evidence": [
+            "Relevant logs or metrics for this hypothesis"
+          ],
+          "next_diagnostic_step": "Inspect worker errors and restart history.",
+          "status": "unverified"
+        },
+        {
+          "title": "Storage or image-read failure",
+          "rationale": "Possible investigation path; no supporting evidence supplied.",
+          "supporting_evidence_ids": [],
+          "missing_evidence": [
+            "Relevant logs or metrics for this hypothesis"
+          ],
+          "next_diagnostic_step": "Inspect object availability, read permissions and decoder errors.",
+          "status": "unverified"
+        },
+        {
+          "title": "Processing resource saturation",
+          "rationale": "Possible investigation path; no supporting evidence supplied.",
+          "supporting_evidence_ids": [],
+          "missing_evidence": [
+            "Relevant logs or metrics for this hypothesis"
+          ],
+          "next_diagnostic_step": "Inspect resource and queue metrics for the incident window.",
+          "status": "unverified"
+        }
+      ],
+      "confirmed_root_cause": null,
+      "action_mode": "simulation_only",
+      "customer_update": "We are investigating The whole site stopped opening, then worked only sometimes.. Impact reported: The site was unavailable for minutes before full recovery.. We have not confirmed a root cause.",
+      "engineering_escalation": {
+        "incident_id": "PUB-20",
+        "observed_symptom": "The whole site stopped opening, then worked only sometimes.",
+        "reported_impact": "The site was unavailable for minutes before full recovery.",
+        "timeline": [],
+        "evidence_ids": [
+          "observation-1"
+        ],
+        "next_steps": [
+          "Inspect worker errors and restart history.",
+          "Inspect object availability, read permissions and decoder errors.",
+          "Inspect resource and queue metrics for the incident window."
+        ]
+      }
+    },
+    {
+      "incident": {
+        "incident_id": "PUB-21",
+        "symptom": "Websites and services become unreachable in some locations.",
+        "impact": "Traffic dropped sharply in affected locations.",
+        "timeline": [],
+        "evidence": [
+          {
+            "id": "observation-1",
+            "source": "customer-visible report",
+            "observation": "Traffic dropped sharply in affected locations.",
+            "timestamp": ""
+          }
+        ]
+      },
+      "hypotheses": [
+        {
+          "title": "Reconstruction worker failure",
+          "rationale": "Possible investigation path; no supporting evidence supplied.",
+          "supporting_evidence_ids": [],
+          "missing_evidence": [
+            "Relevant logs or metrics for this hypothesis"
+          ],
+          "next_diagnostic_step": "Inspect worker errors and restart history.",
+          "status": "unverified"
+        },
+        {
+          "title": "Storage or image-read failure",
+          "rationale": "Possible investigation path; no supporting evidence supplied.",
+          "supporting_evidence_ids": [],
+          "missing_evidence": [
+            "Relevant logs or metrics for this hypothesis"
+          ],
+          "next_diagnostic_step": "Inspect object availability, read permissions and decoder errors.",
+          "status": "unverified"
+        },
+        {
+          "title": "Processing resource saturation",
+          "rationale": "Possible investigation path; no supporting evidence supplied.",
+          "supporting_evidence_ids": [],
+          "missing_evidence": [
+            "Relevant logs or metrics for this hypothesis"
+          ],
+          "next_diagnostic_step": "Inspect resource and queue metrics for the incident window.",
+          "status": "unverified"
+        }
+      ],
+      "confirmed_root_cause": null,
+      "action_mode": "simulation_only",
+      "customer_update": "We are investigating Websites and services become unreachable in some locations.. Impact reported: Traffic dropped sharply in affected locations.. We have not confirmed a root cause.",
+      "engineering_escalation": {
+        "incident_id": "PUB-21",
+        "observed_symptom": "Websites and services become unreachable in some locations.",
+        "reported_impact": "Traffic dropped sharply in affected locations.",
+        "timeline": [],
+        "evidence_ids": [
+          "observation-1"
+        ],
+        "next_steps": [
+          "Inspect worker errors and restart history.",
+          "Inspect object availability, read permissions and decoder errors.",
+          "Inspect resource and queue metrics for the incident window."
+        ]
+      }
+    },
+    {
+      "incident": {
+        "incident_id": "PUB-22",
+        "symptom": "Some websites will not open for me, but friends elsewhere can use them.",
+        "impact": "Access failed depending on visitor location.",
+        "timeline": [],
+        "evidence": [
+          {
+            "id": "observation-1",
+            "source": "customer-visible report",
+            "observation": "Access failed depending on visitor location.",
+            "timestamp": ""
+          }
+        ]
+      },
+      "hypotheses": [
+        {
+          "title": "Reconstruction worker failure",
+          "rationale": "Possible investigation path; no supporting evidence supplied.",
+          "supporting_evidence_ids": [],
+          "missing_evidence": [
+            "Relevant logs or metrics for this hypothesis"
+          ],
+          "next_diagnostic_step": "Inspect worker errors and restart history.",
+          "status": "unverified"
+        },
+        {
+          "title": "Storage or image-read failure",
+          "rationale": "Possible investigation path; no supporting evidence supplied.",
+          "supporting_evidence_ids": [],
+          "missing_evidence": [
+            "Relevant logs or metrics for this hypothesis"
+          ],
+          "next_diagnostic_step": "Inspect object availability, read permissions and decoder errors.",
+          "status": "unverified"
+        },
+        {
+          "title": "Processing resource saturation",
+          "rationale": "Possible investigation path; no supporting evidence supplied.",
+          "supporting_evidence_ids": [],
+          "missing_evidence": [
+            "Relevant logs or metrics for this hypothesis"
+          ],
+          "next_diagnostic_step": "Inspect resource and queue metrics for the incident window.",
+          "status": "unverified"
+        }
+      ],
+      "confirmed_root_cause": null,
+      "action_mode": "simulation_only",
+      "customer_update": "We are investigating Some websites will not open for me, but friends elsewhere can use them.. Impact reported: Access failed depending on visitor location.. We have not confirmed a root cause.",
+      "engineering_escalation": {
+        "incident_id": "PUB-22",
+        "observed_symptom": "Some websites will not open for me, but friends elsewhere can use them.",
+        "reported_impact": "Access failed depending on visitor location.",
+        "timeline": [],
+        "evidence_ids": [
+          "observation-1"
+        ],
+        "next_steps": [
+          "Inspect worker errors and restart history.",
+          "Inspect object availability, read permissions and decoder errors.",
+          "Inspect resource and queue metrics for the incident window."
+        ]
+      }
+    },
+    {
+      "incident": {
+        "incident_id": "PUB-23",
+        "symptom": "Pages are taking much longer and sometimes show an error.",
+        "impact": "Visitors saw generic error pages and slow first responses.",
+        "timeline": [],
+        "evidence": [
+          {
+            "id": "observation-1",
+            "source": "customer-visible report",
+            "observation": "Visitors saw generic error pages and slow first responses.",
+            "timestamp": ""
+          }
+        ]
+      },
+      "hypotheses": [
+        {
+          "title": "Reconstruction worker failure",
+          "rationale": "Possible investigation path; no supporting evidence supplied.",
+          "supporting_evidence_ids": [],
+          "missing_evidence": [
+            "Relevant logs or metrics for this hypothesis"
+          ],
+          "next_diagnostic_step": "Inspect worker errors and restart history.",
+          "status": "unverified"
+        },
+        {
+          "title": "Storage or image-read failure",
+          "rationale": "Possible investigation path; no supporting evidence supplied.",
+          "supporting_evidence_ids": [],
+          "missing_evidence": [
+            "Relevant logs or metrics for this hypothesis"
+          ],
+          "next_diagnostic_step": "Inspect object availability, read permissions and decoder errors.",
+          "status": "unverified"
+        },
+        {
+          "title": "Processing resource saturation",
+          "rationale": "Possible investigation path; no supporting evidence supplied.",
+          "supporting_evidence_ids": [],
+          "missing_evidence": [
+            "Relevant logs or metrics for this hypothesis"
+          ],
+          "next_diagnostic_step": "Inspect resource and queue metrics for the incident window.",
+          "status": "unverified"
+        }
+      ],
+      "confirmed_root_cause": null,
+      "action_mode": "simulation_only",
+      "customer_update": "We are investigating Pages are taking much longer and sometimes show an error.. Impact reported: Visitors saw generic error pages and slow first responses.. We have not confirmed a root cause.",
+      "engineering_escalation": {
+        "incident_id": "PUB-23",
+        "observed_symptom": "Pages are taking much longer and sometimes show an error.",
+        "reported_impact": "Visitors saw generic error pages and slow first responses.",
+        "timeline": [],
+        "evidence_ids": [
+          "observation-1"
+        ],
+        "next_steps": [
+          "Inspect worker errors and restart history.",
+          "Inspect object availability, read permissions and decoder errors.",
+          "Inspect resource and queue metrics for the incident window."
+        ]
+      }
+    },
+    {
+      "incident": {
+        "incident_id": "PUB-24",
+        "symptom": "KV requests return unauthorized and Pages returns server errors.",
+        "impact": "Some users could not log in or publish updates.",
+        "timeline": [],
+        "evidence": [
+          {
+            "id": "observation-1",
+            "source": "customer-visible report",
+            "observation": "Some users could not log in or publish updates.",
+            "timestamp": ""
+          }
+        ]
+      },
+      "hypotheses": [
+        {
+          "title": "Reconstruction worker failure",
+          "rationale": "Possible investigation path; no supporting evidence supplied.",
+          "supporting_evidence_ids": [],
+          "missing_evidence": [
+            "Relevant logs or metrics for this hypothesis"
+          ],
+          "next_diagnostic_step": "Inspect worker errors and restart history.",
+          "status": "unverified"
+        },
+        {
+          "title": "Storage or image-read failure",
+          "rationale": "Possible investigation path; no supporting evidence supplied.",
+          "supporting_evidence_ids": [],
+          "missing_evidence": [
+            "Relevant logs or metrics for this hypothesis"
+          ],
+          "next_diagnostic_step": "Inspect object availability, read permissions and decoder errors.",
+          "status": "unverified"
+        },
+        {
+          "title": "Processing resource saturation",
+          "rationale": "Possible investigation path; no supporting evidence supplied.",
+          "supporting_evidence_ids": [],
+          "missing_evidence": [
+            "Relevant logs or metrics for this hypothesis"
+          ],
+          "next_diagnostic_step": "Inspect resource and queue metrics for the incident window.",
+          "status": "unverified"
+        }
+      ],
+      "confirmed_root_cause": null,
+      "action_mode": "simulation_only",
+      "customer_update": "We are investigating KV requests return unauthorized and Pages returns server errors.. Impact reported: Some users could not log in or publish updates.. We have not confirmed a root cause.",
+      "engineering_escalation": {
+        "incident_id": "PUB-24",
+        "observed_symptom": "KV requests return unauthorized and Pages returns server errors.",
+        "reported_impact": "Some users could not log in or publish updates.",
+        "timeline": [],
+        "evidence_ids": [
+          "observation-1"
+        ],
+        "next_steps": [
+          "Inspect worker errors and restart history.",
+          "Inspect object availability, read permissions and decoder errors.",
+          "Inspect resource and queue metrics for the incident window."
+        ]
+      }
+    },
+    {
+      "incident": {
+        "incident_id": "PUB-25",
+        "symptom": "Cloudflare configuration changes fail and analytics are unavailable.",
+        "impact": "Raw logs were unavailable while network traffic continued.",
+        "timeline": [],
+        "evidence": [
+          {
+            "id": "observation-1",
+            "source": "customer-visible report",
+            "observation": "Raw logs were unavailable while network traffic continued.",
+            "timestamp": ""
+          }
+        ]
+      },
+      "hypotheses": [
+        {
+          "title": "Reconstruction worker failure",
+          "rationale": "Possible investigation path; no supporting evidence supplied.",
+          "supporting_evidence_ids": [],
+          "missing_evidence": [
+            "Relevant logs or metrics for this hypothesis"
+          ],
+          "next_diagnostic_step": "Inspect worker errors and restart history.",
+          "status": "unverified"
+        },
+        {
+          "title": "Storage or image-read failure",
+          "rationale": "Possible investigation path; no supporting evidence supplied.",
+          "supporting_evidence_ids": [],
+          "missing_evidence": [
+            "Relevant logs or metrics for this hypothesis"
+          ],
+          "next_diagnostic_step": "Inspect object availability, read permissions and decoder errors.",
+          "status": "unverified"
+        },
+        {
+          "title": "Processing resource saturation",
+          "rationale": "Possible investigation path; no supporting evidence supplied.",
+          "supporting_evidence_ids": [],
+          "missing_evidence": [
+            "Relevant logs or metrics for this hypothesis"
+          ],
+          "next_diagnostic_step": "Inspect resource and queue metrics for the incident window.",
+          "status": "unverified"
+        }
+      ],
+      "confirmed_root_cause": null,
+      "action_mode": "simulation_only",
+      "customer_update": "We are investigating Cloudflare configuration changes fail and analytics are unavailable.. Impact reported: Raw logs were unavailable while network traffic continued.. We have not confirmed a root cause.",
+      "engineering_escalation": {
+        "incident_id": "PUB-25",
+        "observed_symptom": "Cloudflare configuration changes fail and analytics are unavailable.",
+        "reported_impact": "Raw logs were unavailable while network traffic continued.",
+        "timeline": [],
+        "evidence_ids": [
+          "observation-1"
+        ],
+        "next_steps": [
+          "Inspect worker errors and restart history.",
+          "Inspect object availability, read permissions and decoder errors.",
+          "Inspect resource and queue metrics for the incident window."
+        ]
+      }
+    },
+    {
+      "incident": {
+        "incident_id": "PUB-26",
+        "symptom": "Connections between Cloudflare and AWS us-east-1 lose packets and slow down.",
+        "impact": "Some connections to origins failed.",
+        "timeline": [],
+        "evidence": [
+          {
+            "id": "observation-1",
+            "source": "customer-visible report",
+            "observation": "Some connections to origins failed.",
+            "timestamp": ""
+          }
+        ]
+      },
+      "hypotheses": [
+        {
+          "title": "Reconstruction worker failure",
+          "rationale": "Possible investigation path; no supporting evidence supplied.",
+          "supporting_evidence_ids": [],
+          "missing_evidence": [
+            "Relevant logs or metrics for this hypothesis"
+          ],
+          "next_diagnostic_step": "Inspect worker errors and restart history.",
+          "status": "unverified"
+        },
+        {
+          "title": "Storage or image-read failure",
+          "rationale": "Possible investigation path; no supporting evidence supplied.",
+          "supporting_evidence_ids": [],
+          "missing_evidence": [
+            "Relevant logs or metrics for this hypothesis"
+          ],
+          "next_diagnostic_step": "Inspect object availability, read permissions and decoder errors.",
+          "status": "unverified"
+        },
+        {
+          "title": "Processing resource saturation",
+          "rationale": "Possible investigation path; no supporting evidence supplied.",
+          "supporting_evidence_ids": [],
+          "missing_evidence": [
+            "Relevant logs or metrics for this hypothesis"
+          ],
+          "next_diagnostic_step": "Inspect resource and queue metrics for the incident window.",
+          "status": "unverified"
+        }
+      ],
+      "confirmed_root_cause": null,
+      "action_mode": "simulation_only",
+      "customer_update": "We are investigating Connections between Cloudflare and AWS us-east-1 lose packets and slow down.. Impact reported: Some connections to origins failed.. We have not confirmed a root cause.",
+      "engineering_escalation": {
+        "incident_id": "PUB-26",
+        "observed_symptom": "Connections between Cloudflare and AWS us-east-1 lose packets and slow down.",
+        "reported_impact": "Some connections to origins failed.",
+        "timeline": [],
+        "evidence_ids": [
+          "observation-1"
+        ],
+        "next_steps": [
+          "Inspect worker errors and restart history.",
+          "Inspect object availability, read permissions and decoder errors.",
+          "Inspect resource and queue metrics for the incident window."
+        ]
+      }
+    },
+    {
+      "incident": {
+        "incident_id": "PUB-27",
+        "symptom": "I cannot upload or download any of my files.",
+        "impact": "All R2 bucket and object operations failed during the main window.",
+        "timeline": [],
+        "evidence": [
+          {
+            "id": "observation-1",
+            "source": "customer-visible report",
+            "observation": "All R2 bucket and object operations failed during the main window.",
+            "timestamp": ""
+          }
+        ]
+      },
+      "hypotheses": [
+        {
+          "title": "Storage or image-read failure",
+          "rationale": "Evidence mentions a related signal; causation is not established.",
+          "supporting_evidence_ids": [
+            "observation-1"
+          ],
+          "missing_evidence": [],
+          "next_diagnostic_step": "Inspect object availability, read permissions and decoder errors.",
+          "status": "unverified"
+        },
+        {
+          "title": "Reconstruction worker failure",
+          "rationale": "Possible investigation path; no supporting evidence supplied.",
+          "supporting_evidence_ids": [],
+          "missing_evidence": [
+            "Relevant logs or metrics for this hypothesis"
+          ],
+          "next_diagnostic_step": "Inspect worker errors and restart history.",
+          "status": "unverified"
+        },
+        {
+          "title": "Processing resource saturation",
+          "rationale": "Possible investigation path; no supporting evidence supplied.",
+          "supporting_evidence_ids": [],
+          "missing_evidence": [
+            "Relevant logs or metrics for this hypothesis"
+          ],
+          "next_diagnostic_step": "Inspect resource and queue metrics for the incident window.",
+          "status": "unverified"
+        }
+      ],
+      "confirmed_root_cause": null,
+      "action_mode": "simulation_only",
+      "customer_update": "We are investigating I cannot upload or download any of my files.. Impact reported: All R2 bucket and object operations failed during the main window.. We have not confirmed a root cause.",
+      "engineering_escalation": {
+        "incident_id": "PUB-27",
+        "observed_symptom": "I cannot upload or download any of my files.",
+        "reported_impact": "All R2 bucket and object operations failed during the main window.",
+        "timeline": [],
+        "evidence_ids": [
+          "observation-1"
+        ],
+        "next_steps": [
+          "Inspect object availability, read permissions and decoder errors.",
+          "Inspect worker errors and restart history.",
+          "Inspect resource and queue metrics for the incident window."
+        ]
+      }
+    },
+    {
+      "incident": {
+        "incident_id": "PUB-28",
+        "symptom": "Cloudflare Access identity logins fail and Pages builds cannot finish.",
+        "impact": "Affected services failed globally without reported data loss.",
+        "timeline": [],
+        "evidence": [
+          {
+            "id": "observation-1",
+            "source": "customer-visible report",
+            "observation": "Affected services failed globally without reported data loss.",
+            "timestamp": ""
+          }
+        ]
+      },
+      "hypotheses": [
+        {
+          "title": "Reconstruction worker failure",
+          "rationale": "Possible investigation path; no supporting evidence supplied.",
+          "supporting_evidence_ids": [],
+          "missing_evidence": [
+            "Relevant logs or metrics for this hypothesis"
+          ],
+          "next_diagnostic_step": "Inspect worker errors and restart history.",
+          "status": "unverified"
+        },
+        {
+          "title": "Storage or image-read failure",
+          "rationale": "Possible investigation path; no supporting evidence supplied.",
+          "supporting_evidence_ids": [],
+          "missing_evidence": [
+            "Relevant logs or metrics for this hypothesis"
+          ],
+          "next_diagnostic_step": "Inspect object availability, read permissions and decoder errors.",
+          "status": "unverified"
+        },
+        {
+          "title": "Processing resource saturation",
+          "rationale": "Possible investigation path; no supporting evidence supplied.",
+          "supporting_evidence_ids": [],
+          "missing_evidence": [
+            "Relevant logs or metrics for this hypothesis"
+          ],
+          "next_diagnostic_step": "Inspect resource and queue metrics for the incident window.",
+          "status": "unverified"
+        }
+      ],
+      "confirmed_root_cause": null,
+      "action_mode": "simulation_only",
+      "customer_update": "We are investigating Cloudflare Access identity logins fail and Pages builds cannot finish.. Impact reported: Affected services failed globally without reported data loss.. We have not confirmed a root cause.",
+      "engineering_escalation": {
+        "incident_id": "PUB-28",
+        "observed_symptom": "Cloudflare Access identity logins fail and Pages builds cannot finish.",
+        "reported_impact": "Affected services failed globally without reported data loss.",
+        "timeline": [],
+        "evidence_ids": [
+          "observation-1"
+        ],
+        "next_steps": [
+          "Inspect worker errors and restart history.",
+          "Inspect object availability, read permissions and decoder errors.",
+          "Inspect resource and queue metrics for the incident window."
+        ]
+      }
+    },
+    {
+      "incident": {
+        "incident_id": "PUB-29",
+        "symptom": "Cloudflare sites return HTTP 502 responses.",
+        "impact": "Visitors received error pages across the network.",
+        "timeline": [],
+        "evidence": [
+          {
+            "id": "observation-1",
+            "source": "customer-visible report",
+            "observation": "Visitors received error pages across the network.",
+            "timestamp": ""
+          }
+        ]
+      },
+      "hypotheses": [
+        {
+          "title": "Reconstruction worker failure",
+          "rationale": "Possible investigation path; no supporting evidence supplied.",
+          "supporting_evidence_ids": [],
+          "missing_evidence": [
+            "Relevant logs or metrics for this hypothesis"
+          ],
+          "next_diagnostic_step": "Inspect worker errors and restart history.",
+          "status": "unverified"
+        },
+        {
+          "title": "Storage or image-read failure",
+          "rationale": "Possible investigation path; no supporting evidence supplied.",
+          "supporting_evidence_ids": [],
+          "missing_evidence": [
+            "Relevant logs or metrics for this hypothesis"
+          ],
+          "next_diagnostic_step": "Inspect object availability, read permissions and decoder errors.",
+          "status": "unverified"
+        },
+        {
+          "title": "Processing resource saturation",
+          "rationale": "Possible investigation path; no supporting evidence supplied.",
+          "supporting_evidence_ids": [],
+          "missing_evidence": [
+            "Relevant logs or metrics for this hypothesis"
+          ],
+          "next_diagnostic_step": "Inspect resource and queue metrics for the incident window.",
+          "status": "unverified"
+        }
+      ],
+      "confirmed_root_cause": null,
+      "action_mode": "simulation_only",
+      "customer_update": "We are investigating Cloudflare sites return HTTP 502 responses.. Impact reported: Visitors received error pages across the network.. We have not confirmed a root cause.",
+      "engineering_escalation": {
+        "incident_id": "PUB-29",
+        "observed_symptom": "Cloudflare sites return HTTP 502 responses.",
+        "reported_impact": "Visitors received error pages across the network.",
+        "timeline": [],
+        "evidence_ids": [
+          "observation-1"
+        ],
+        "next_steps": [
+          "Inspect worker errors and restart history.",
+          "Inspect object availability, read permissions and decoder errors.",
+          "Inspect resource and queue metrics for the incident window."
+        ]
+      }
+    },
+    {
+      "incident": {
+        "incident_id": "PUB-30",
+        "symptom": "I cannot get my files or put any new ones online.",
+        "impact": "S3 requests failed in Northern Virginia.",
+        "timeline": [],
+        "evidence": [
+          {
+            "id": "observation-1",
+            "source": "customer-visible report",
+            "observation": "S3 requests failed in Northern Virginia.",
+            "timestamp": ""
+          }
+        ]
+      },
+      "hypotheses": [
+        {
+          "title": "Reconstruction worker failure",
+          "rationale": "Possible investigation path; no supporting evidence supplied.",
+          "supporting_evidence_ids": [],
+          "missing_evidence": [
+            "Relevant logs or metrics for this hypothesis"
+          ],
+          "next_diagnostic_step": "Inspect worker errors and restart history.",
+          "status": "unverified"
+        },
+        {
+          "title": "Storage or image-read failure",
+          "rationale": "Possible investigation path; no supporting evidence supplied.",
+          "supporting_evidence_ids": [],
+          "missing_evidence": [
+            "Relevant logs or metrics for this hypothesis"
+          ],
+          "next_diagnostic_step": "Inspect object availability, read permissions and decoder errors.",
+          "status": "unverified"
+        },
+        {
+          "title": "Processing resource saturation",
+          "rationale": "Possible investigation path; no supporting evidence supplied.",
+          "supporting_evidence_ids": [],
+          "missing_evidence": [
+            "Relevant logs or metrics for this hypothesis"
+          ],
+          "next_diagnostic_step": "Inspect resource and queue metrics for the incident window.",
+          "status": "unverified"
+        }
+      ],
+      "confirmed_root_cause": null,
+      "action_mode": "simulation_only",
+      "customer_update": "We are investigating I cannot get my files or put any new ones online.. Impact reported: S3 requests failed in Northern Virginia.. We have not confirmed a root cause.",
+      "engineering_escalation": {
+        "incident_id": "PUB-30",
+        "observed_symptom": "I cannot get my files or put any new ones online.",
+        "reported_impact": "S3 requests failed in Northern Virginia.",
+        "timeline": [],
+        "evidence_ids": [
+          "observation-1"
+        ],
+        "next_steps": [
+          "Inspect worker errors and restart history.",
+          "Inspect object availability, read permissions and decoder errors.",
+          "Inspect resource and queue metrics for the incident window."
+        ]
+      }
+    }
+  ]
+}

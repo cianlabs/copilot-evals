@@ -35,6 +35,11 @@ jobs:
 
       - name: Run tests
         run: python -m pytest -q
+        env:
+          RUNBOOK_COPILOT_PATH: baselines
+
+      - name: Reproduce public incident baseline
+        run: python incident_eval.py --check
 
       # Committed results and the practice model only. No API key, no real model.
       - name: Check recorded results against the floor

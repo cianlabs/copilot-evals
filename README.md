@@ -6,6 +6,18 @@ It asks a fixed list of questions and writes down what the agent did. You can al
 
 If the agent proposes an action, this harness always says no. A restart is not run. A delete is not run.
 
+## Public incident baseline
+
+The separate public incident set has 30 real events, including 15 vague customer symptoms and four cautious cases. All 22 cited first-party pages were fetched, read and returned HTTP 200. [Sources and verification notes](SOURCES.md) identify each incident and its section.
+
+| Overall top-1 | Overall top-3 | Vague symptom top-1 | Cautious behavior |
+| --- | --- | --- | --- |
+| 0/26 (0.0%) | 0/26 (0.0%) | 0/13 (0.0%) | 4/4 (100.0%) |
+
+Run `python incident_eval.py` offline. [Every missed incident](docs/public-incident-results.md) has a one-line reason. [Scoring and limits](docs/public-incidents.md) explain the denominators and frozen companion code. No ranking code was tuned for these cases. Actions stay simulated.
+
+Limits: the baseline has only three fixed investigation paths and cannot name these specific incident mechanisms. It ignores the symptom when ranking. The 4/4 caution result checks restraint and output structure, not useful diagnosis. Sparse user observations cannot prove a root cause, and this small set from three providers does not represent all customer incidents. These are deterministic practice results, not a live model score.
+
 ## Results at a glance
 
 ![Before and after on the real model, 5 passes: 116 of 150 to 144 of 150](docs/img/m4_before_after.png)

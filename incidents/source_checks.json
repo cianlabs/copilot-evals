@@ -1,0 +1,200 @@
+[
+  {
+    "key": "gh-january-2021",
+    "url": "https://github.blog/news-insights/company-news/github-availability-report-january-2021/",
+    "final_url": "https://github.blog/news-insights/company-news/github-availability-report-january-2021/",
+    "status": 200,
+    "sha256": "f5bfad298eba7feecdc8d4f86a8361db843e0b961708191519266eb9bfc21753",
+    "verified_at": "2026-11-02T01:05:08.990019+00:00",
+    "method": "HTTP GET; named section present; symptoms and labels manually reviewed on 2026-11-01 Pacific"
+  },
+  {
+    "key": "gh-march-2021",
+    "url": "https://github.blog/news-insights/company-news/github-availability-report-march-2021/",
+    "final_url": "https://github.blog/news-insights/company-news/github-availability-report-march-2021/",
+    "status": 200,
+    "sha256": "c72aac2243bcf8585be4ce471ee57e5f8a3e5648e1de407c96751503b5cdba44",
+    "verified_at": "2026-11-02T01:05:09.012264+00:00",
+    "method": "HTTP GET; named section present; symptoms and labels manually reviewed on 2026-11-01 Pacific"
+  },
+  {
+    "key": "gh-april-2021",
+    "url": "https://github.blog/news-insights/company-news/github-availability-report-april-2021/",
+    "final_url": "https://github.blog/news-insights/company-news/github-availability-report-april-2021/",
+    "status": 200,
+    "sha256": "38a0ba64d61d70be2bd8b320535c527a29793cdf3a0e0ac1203586fac1f55871",
+    "verified_at": "2026-11-02T01:05:09.621042+00:00",
+    "method": "HTTP GET; named section present; symptoms and labels manually reviewed on 2026-11-01 Pacific"
+  },
+  {
+    "key": "gh-may-2021",
+    "url": "https://github.blog/news-insights/company-news/github-availability-report-may-2021/",
+    "final_url": "https://github.blog/news-insights/company-news/github-availability-report-may-2021/",
+    "status": 200,
+    "sha256": "69ccbbaa96953ab111e8a902f7569f5c632da9f2a6631ff192d6a2116c0f9272",
+    "verified_at": "2026-11-02T01:05:09.007289+00:00",
+    "method": "HTTP GET; named section present; symptoms and labels manually reviewed on 2026-11-01 Pacific"
+  },
+  {
+    "key": "gh-august-2021",
+    "url": "https://github.blog/news-insights/company-news/github-availability-report-august-2021/",
+    "final_url": "https://github.blog/news-insights/company-news/github-availability-report-august-2021/",
+    "status": 200,
+    "sha256": "cb6496bf1ad56c5230203d417dbcbaada1940794c17179e0f21f16388efcc008",
+    "verified_at": "2026-11-02T01:05:09.007178+00:00",
+    "method": "HTTP GET; named section present; symptoms and labels manually reviewed on 2026-11-01 Pacific"
+  },
+  {
+    "key": "gh-october-2021",
+    "url": "https://github.blog/news-insights/company-news/github-availability-report-october-2021/",
+    "final_url": "https://github.blog/news-insights/company-news/github-availability-report-october-2021/",
+    "status": 200,
+    "sha256": "2590877ba59a9869518a1574251b8e7644fff5e552c1629661ce342551856a21",
+    "verified_at": "2026-11-02T01:05:08.996780+00:00",
+    "method": "HTTP GET; named section present; symptoms and labels manually reviewed on 2026-11-01 Pacific"
+  },
+  {
+    "key": "gh-november-2021",
+    "url": "https://github.blog/news-insights/company-news/github-availability-report-november-2021/",
+    "final_url": "https://github.blog/news-insights/company-news/github-availability-report-november-2021/",
+    "status": 200,
+    "sha256": "526a755857bc0ae04356c4b72775521992b50a4cb6747d507ad017e30f782d15",
+    "verified_at": "2026-11-02T01:05:09.763544+00:00",
+    "method": "HTTP GET; named section present; symptoms and labels manually reviewed on 2026-11-01 Pacific"
+  },
+  {
+    "key": "gh-september-2020",
+    "url": "https://github.blog/news-insights/company-news/github-availability-report-september-2020/",
+    "final_url": "https://github.blog/news-insights/company-news/github-availability-report-september-2020/",
+    "status": 200,
+    "sha256": "3e43a411fb2e67cb3f14c2b5beea310628d092a965f5155bad83ec9dab68eeb9",
+    "verified_at": "2026-11-02T01:05:09.784423+00:00",
+    "method": "HTTP GET; named section present; symptoms and labels manually reviewed on 2026-11-01 Pacific"
+  },
+  {
+    "key": "gh-october-2020",
+    "url": "https://github.blog/news-insights/company-news/github-availability-report-october-2020/",
+    "final_url": "https://github.blog/news-insights/company-news/github-availability-report-october-2020/",
+    "status": 200,
+    "sha256": "5be409cbea1076f11d577217ab0be17ee3c1064d4c3b8cfb4148db1b9552e08b",
+    "verified_at": "2026-11-02T01:05:09.913671+00:00",
+    "method": "HTTP GET; named section present; symptoms and labels manually reviewed on 2026-11-01 Pacific"
+  },
+  {
+    "key": "gh-intro",
+    "url": "https://github.blog/news-insights/company-news/introducing-the-github-availability-report/",
+    "final_url": "https://github.blog/news-insights/company-news/introducing-the-github-availability-report/",
+    "status": 200,
+    "sha256": "e7d92aac6ff268ac220b6ef121e2df4b9415f8965ad70f494132e64036a4efb9",
+    "verified_at": "2026-11-02T01:05:09.145457+00:00",
+    "method": "HTTP GET; named section present; symptoms and labels manually reviewed on 2026-11-01 Pacific"
+  },
+  {
+    "key": "gh-2018",
+    "url": "https://github.blog/news-insights/company-news/october21-incident-report/",
+    "final_url": "https://github.blog/news-insights/company-news/october21-incident-report/",
+    "status": 200,
+    "sha256": "e33363c03b839106625b68743d6eebe9c52f939134ea5b8ec3bede44c5fc1def",
+    "verified_at": "2026-11-02T01:05:09.191718+00:00",
+    "method": "HTTP GET; named section present; symptoms and labels manually reviewed on 2026-11-01 Pacific"
+  },
+  {
+    "key": "gh-ddos",
+    "url": "https://github.blog/news-insights/company-news/ddos-incident-report/",
+    "final_url": "https://github.blog/news-insights/company-news/ddos-incident-report/",
+    "status": 200,
+    "sha256": "c4b4d427bdbd6104d97bac0dd74769a4f2228fa14a03b768c0b47a2a71917ffa",
+    "verified_at": "2026-11-02T01:05:09.962001+00:00",
+    "method": "HTTP GET; named section present; symptoms and labels manually reviewed on 2026-11-01 Pacific"
+  },
+  {
+    "key": "cloudflare-outage-on-july-17-2020",
+    "url": "https://blog.cloudflare.com/cloudflare-outage-on-july-17-2020/",
+    "final_url": "https://blog.cloudflare.com/cloudflare-outage-on-july-17-2020/",
+    "status": 200,
+    "sha256": "cd58649d99ae41fc49086d7ba5451fa9b13e183c78b76a05f44b30434a8f3fdc",
+    "verified_at": "2026-11-02T01:05:09.383287+00:00",
+    "method": "HTTP GET; named section present; symptoms and labels manually reviewed on 2026-11-01 Pacific"
+  },
+  {
+    "key": "cloudflare-outage-on-june-21-2022",
+    "url": "https://blog.cloudflare.com/cloudflare-outage-on-june-21-2022/",
+    "final_url": "https://blog.cloudflare.com/cloudflare-outage-on-june-21-2022/",
+    "status": 200,
+    "sha256": "6350c4a3aa1ce5db3c9930148abf63da495f3c20dfb79499e01a8a9dc56a0f93",
+    "verified_at": "2026-11-02T01:05:09.585649+00:00",
+    "method": "HTTP GET; named section present; symptoms and labels manually reviewed on 2026-11-01 Pacific"
+  },
+  {
+    "key": "cloudflare-incident-on-june-20-2024",
+    "url": "https://blog.cloudflare.com/cloudflare-incident-on-june-20-2024/",
+    "final_url": "https://blog.cloudflare.com/cloudflare-incident-on-june-20-2024/",
+    "status": 200,
+    "sha256": "589a7759270c6ba23e21577eba68e0a497920f7bbd6109e29199cd5129b892bb",
+    "verified_at": "2026-11-02T01:05:09.741115+00:00",
+    "method": "HTTP GET; named section present; symptoms and labels manually reviewed on 2026-11-01 Pacific"
+  },
+  {
+    "key": "cloudflare-incident-on-october-30-2023",
+    "url": "https://blog.cloudflare.com/cloudflare-incident-on-october-30-2023/",
+    "final_url": "https://blog.cloudflare.com/cloudflare-incident-on-october-30-2023/",
+    "status": 200,
+    "sha256": "09d83a79a9e4b084f9843394f22c5e7c84e88389b9ac0057b8eef9403d6348e8",
+    "verified_at": "2026-11-02T01:05:09.779078+00:00",
+    "method": "HTTP GET; named section present; symptoms and labels manually reviewed on 2026-11-01 Pacific"
+  },
+  {
+    "key": "post-mortem-on-cloudflare-control-plane-and-analytics-outage",
+    "url": "https://blog.cloudflare.com/post-mortem-on-cloudflare-control-plane-and-analytics-outage/",
+    "final_url": "https://blog.cloudflare.com/post-mortem-on-cloudflare-control-plane-and-analytics-outage/",
+    "status": 200,
+    "sha256": "6db3f901903f1dae097992c38abcf03190ba896fcd2e64a7861f199f4ce38ce2",
+    "verified_at": "2026-11-02T01:05:09.907488+00:00",
+    "method": "HTTP GET; named section present; symptoms and labels manually reviewed on 2026-11-01 Pacific"
+  },
+  {
+    "key": "cloudflare-incident-on-august-21-2025",
+    "url": "https://blog.cloudflare.com/cloudflare-incident-on-august-21-2025/",
+    "final_url": "https://blog.cloudflare.com/cloudflare-incident-on-august-21-2025/",
+    "status": 200,
+    "sha256": "f767a3569ce16a4094f79f9d7850f4f2ccf6b44abe0be902606d2a4e3f94d144",
+    "verified_at": "2026-11-02T01:05:09.930810+00:00",
+    "method": "HTTP GET; named section present; symptoms and labels manually reviewed on 2026-11-01 Pacific"
+  },
+  {
+    "key": "cloudflare-incident-on-february-6-2025",
+    "url": "https://blog.cloudflare.com/cloudflare-incident-on-february-6-2025/",
+    "final_url": "https://blog.cloudflare.com/cloudflare-incident-on-february-6-2025/",
+    "status": 200,
+    "sha256": "2c91edb066636821aa17d64c802b2a69ca1a54d4cbaa6a3912c918880afcb226",
+    "verified_at": "2026-11-02T01:05:09.944497+00:00",
+    "method": "HTTP GET; named section present; symptoms and labels manually reviewed on 2026-11-01 Pacific"
+  },
+  {
+    "key": "cloudflare-service-outage-june-12-2025",
+    "url": "https://blog.cloudflare.com/cloudflare-service-outage-june-12-2025/",
+    "final_url": "https://blog.cloudflare.com/cloudflare-service-outage-june-12-2025/",
+    "status": 200,
+    "sha256": "86ae66f05081c12ef5542fcbcad897c11e70e5af8bbfb1b2ddb50668980ac84f",
+    "verified_at": "2026-11-02T01:05:09.957637+00:00",
+    "method": "HTTP GET; named section present; symptoms and labels manually reviewed on 2026-11-01 Pacific"
+  },
+  {
+    "key": "cf-2019",
+    "url": "https://blog.cloudflare.com/details-of-the-cloudflare-outage-on-july-2-2019/",
+    "final_url": "https://blog.cloudflare.com/details-of-the-cloudflare-outage-on-july-2-2019/",
+    "status": 200,
+    "sha256": "3eb405eb7cfd493869c2445f6bf77ef8055c0b12128bfdc8839c1aa3de88c783",
+    "verified_at": "2026-11-02T01:05:10.082986+00:00",
+    "method": "HTTP GET; named section present; symptoms and labels manually reviewed on 2026-11-01 Pacific"
+  },
+  {
+    "key": "aws-s3",
+    "url": "https://aws.amazon.com/message/41926/",
+    "final_url": "https://aws.amazon.com/message/41926/",
+    "status": 200,
+    "sha256": "5ef37f7e13b2455ad44d93ad8f4f73f187cd7f7891cdc675207cd11faa4ed390",
+    "verified_at": "2026-11-02T01:05:10.124380+00:00",
+    "method": "HTTP GET; named section present; symptoms and labels manually reviewed on 2026-11-01 Pacific"
+  }
+]
