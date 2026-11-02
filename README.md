@@ -520,3 +520,7 @@ A question that starts with "restart" becomes a proposed action, and this harnes
 `runs.sample.jsonl` is nine lines copied from one practice pass. It is there so you can see the shape of the file before you run anything. It is not the full list of 30.
 
 The hand labels for this practice pass are in `labels.md`. Four of those names are also checked by `check_runs.py`. The other four can be graded by `judge.py`. The golden set scores the same kind of run in `golden_check.py`. The loop-versus-graph comparison is `compare.md`.
+
+## License
+
+Original project code and documentation are licensed under the [MIT License](LICENSE). This license does not relicense third-party incident reports, datasets, or other third-party material. Those materials remain subject to their original rights and terms; existing source links and attributions are retained.
