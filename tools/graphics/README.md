@@ -19,6 +19,10 @@ python3 tools/graphics/make_graphic.py tools/graphics/data/m5.json
 
 `--out DIR` writes the png into that folder instead of `docs/img`.
 
+## Improvement loop
+
+Copy `tools/graphics/data/improve_loop.json` (`type` is `loop`). `cards` is one left-to-right row. `return.from` and `return.to` are card indexes (first card is 0). The dotted arrow is drawn under that span and points back to `from`. `notes` is the box under the loop. Run the same command. The png goes to `docs/img`.
+
 ## Bar chart
 
 Copy `tools/graphics/data/m4_before_after.json` (`type` is `bars`), change the values, and run the same command. The png goes to `docs/img`.

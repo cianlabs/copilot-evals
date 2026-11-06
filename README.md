@@ -22,16 +22,7 @@ The month before is the [M3 graphic](docs/img/m3_graphic.png): the agent loop, s
 
 Each round names the failures, fixes the biggest group, and checks the score again. The dotted arrow is the next failure.
 
-```mermaid
-flowchart TD
-    questions["30 test questions"] --> passes["Run the copilot 5 passes on the real model"]
-    passes --> traces["Traces record every step"]
-    traces --> nameEach["Name each failure"]
-    nameEach --> fix["Fix the biggest group: a pull request from a cloud agent"]
-    fix --> compare["Re-run and compare: 116 to 144 of 150"]
-    compare --> ci["CI blocks regressions: floor 144 of 150"]
-    ci -.-> nameEach
-```
+![How we improve the copilot: 30 test questions, 5 passes on the real model, traces, name each failure, a pull request from a cloud agent, re-run 116 to 144 of 150, CI floor 144 of 150](docs/img/improve-loop.png)
 
 ## Run the practice pass
 
