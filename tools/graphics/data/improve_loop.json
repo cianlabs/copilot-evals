@@ -1,0 +1,26 @@
+{
+  "type": "loop",
+  "out": "improve-loop.png",
+  "width": 1280,
+  "height": 500,
+  "title": "How we improve the copilot",
+  "subtitle": "Each round names the failures, fixes the biggest group, and checks the score again. The dotted arrow is the next failure.",
+  "section": "THE IMPROVEMENT LOOP",
+  "cards": [
+    {"color": "blue", "title": "1. 30 test questions", "body": "The same fixed list, every round."},
+    {"color": "purple", "title": "2. Five passes", "body": "Run the copilot 5 passes on the real model."},
+    {"color": "green", "title": "3. Traces", "body": "Traces record every step."},
+    {"color": "yellow", "title": "4. Name each failure", "body": "Read the traces and name what went wrong."},
+    {"color": "orange", "title": "5. Fix the biggest group", "body": "A pull request from a cloud agent."},
+    {"color": "blue", "title": "6. Re-run and compare", "body": "116 to 144 of 150."},
+    {"color": "red", "title": "7. CI floor", "body": "CI blocks regressions: floor 144 of 150."}
+  ],
+  "return": {"from": 3, "to": 6, "label": "Next failure"},
+  "note_title": "What one round checks",
+  "notes": [
+    "30 test questions, 5 passes on the real model. Traces record every step.",
+    "Name each failure, then fix the biggest group: a pull request from a cloud agent.",
+    "Re-run and compare: 116 to 144 of 150.",
+    "CI blocks regressions: floor 144 of 150. The dotted arrow goes back to naming the next failure."
+  ]
+}

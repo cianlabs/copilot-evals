@@ -6,6 +6,8 @@ Usage (from the repo root):
       -> docs/img/m3_graphic.png
   python3 tools/graphics/make_graphic.py tools/graphics/data/m4_before_after.json
       -> docs/img/m4_before_after.png
+  python3 tools/graphics/make_graphic.py tools/graphics/data/improve_loop.json
+      -> docs/img/improve-loop.png
   python3 tools/graphics/make_graphic.py --out /tmp/out tools/graphics/data/m3.json
 
 Needs google-chrome (headless). Renders at 2x.
@@ -50,6 +52,27 @@ h1{{font-size:27px;font-weight:800;letter-spacing:-.3px}}
 .bar i{{display:block;height:9px;border-radius:3px}} .bar em{{font-style:normal;font-weight:700}}
 """
 
+LOOP_CSS = f"""
+*{{box-sizing:border-box;margin:0;padding:0}}
+html,body{{height:100%}}
+body{{font-family:Inter,sans-serif;background:#f6f7fb;color:{NAVY};padding:32px 36px 28px}}
+h1{{font-size:32px;font-weight:800;letter-spacing:-.4px}}
+.sub{{color:#555c6e;font-size:15px;margin:6px 0 16px;line-height:1.4}}
+.lbl{{font-size:11px;font-weight:700;letter-spacing:1.2px;color:#3b4258;margin:0 0 10px}}
+.grid{{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));column-gap:10px;row-gap:0;align-items:stretch}}
+.lc{{border-radius:12px;border:1.5px solid;padding:12px 12px 11px;min-height:118px}}
+.lc h3{{font-size:14px;font-weight:700;margin-bottom:6px;line-height:1.25;color:{NAVY}}}
+.lc p{{font-size:12px;line-height:1.4;color:#3a4050}}
+.arr{{display:flex;align-items:center;justify-content:center;color:#444;font-size:16px;padding-bottom:28px}}
+.ret{{position:relative;height:36px;margin-top:8px}}
+.ret i{{position:absolute;left:0;right:0;top:16px;border-top:2.5px dotted #3555d8}}
+.ret i::before{{content:"";position:absolute;left:-1px;top:-6px;border:6px solid transparent;border-right:8px solid #3555d8}}
+.ret span{{position:absolute;left:50%;top:6px;transform:translateX(-50%);background:#f6f7fb;color:#d8500a;font-size:12px;font-weight:700;padding:0 8px}}
+.panel{{margin-top:16px;background:#fff;border:1.5px solid #d5dbe8;border-radius:14px;padding:14px 18px 12px}}
+.panel h2{{font-size:15px;font-weight:700;margin-bottom:8px}}
+.panel li{{font-size:13px;line-height:1.45;color:#3a4050;margin:4px 0 4px 18px}}
+"""
+
 def reveal(n):
     if n is None: return ""
     return f"<script>document.querySelectorAll('.an').forEach((el,i)=>{{if(i>={n})el.style.visibility='hidden'}})</script>"
@@ -80,6 +103,43 @@ def month_html(d, n=None):
 <div class="lbl" style="margin-top:14px">WHAT YOU BUILT AND HOW IT FLOWS</div>{rows}
 <div class="lbl" style="margin-top:10px">KEY IDEAS TO UNDERSTAND</div><div class="keys">{keys}</div>
 {reveal(n)}</body></html>"""
+
+def loop_html(d):
+    """Horizontal improvement loop. A dotted return sits under cards[return.from : return.to]."""
+    cards = d["cards"]
+    ret = d.get("return") or {}
+    start = int(ret.get("from", 0))
+    end = int(ret.get("to", len(cards) - 1))
+    if not (0 <= start < end < len(cards)):
+        sys.exit("loop return.from must be a card index left of return.to")
+    cells = []
+    for i, c in enumerate(cards):
+        bg, bd = COLORS[c.get("color", "white")]
+        cells.append(
+            f'<div class="lc" style="background:{bg};border-color:{bd};grid-column:{i+1};grid-row:1">'
+            f'<h3>{e(c["title"])}</h3><p>{e(c["body"])}</p></div>'
+        )
+        if i < len(cards) - 1:
+            cells.append(
+                f'<div class="arr" style="grid-column:{i+1};grid-row:1;justify-self:end;width:0;overflow:visible;position:relative;left:12px">&#10230;</div>'
+            )
+    # The return track shares the card grid so it starts and ends on the named cards.
+    span = end - start + 1
+    ret_html = ""
+    if ret.get("label"):
+        ret_html = (
+            f'<div class="ret" style="grid-column:{start+1} / span {span};grid-row:2">'
+            f'<i></i><span>{e(ret["label"])}</span></div>'
+        )
+    notes = "".join(f"<li>{e(n)}</li>" for n in d.get("notes", []))
+    panel = ""
+    if notes:
+        panel = f'<div class="panel"><h2>{e(d.get("note_title",""))}</h2><ul>{notes}</ul></div>'
+    return f"""<html><head><style>{LOOP_CSS}</style></head><body>
+<h1>{e(d["title"])}</h1><div class="sub">{e(d["subtitle"])}</div>
+<div class="lbl">{e(d.get("section","THE LOOP"))}</div>
+<div class="grid" style="grid-template-columns:repeat({len(cards)},minmax(0,1fr))">{''.join(cells)}{ret_html}</div>
+{panel}</body></html>"""
 
 def bars_html(d):
     W,H=1200,675; maxh=380
@@ -165,6 +225,9 @@ if __name__=="__main__":
         if d.get("type")=="bars":
             name=d["out"]; w,h=1200,675
             htmltext=bars_html(d)
+        elif d.get("type")=="loop":
+            name=d["out"]; w,h=d.get("width",1280),d.get("height",640)
+            htmltext=loop_html(d)
         else:
             name=d.get("out", d["month"].lower()+"_graphic.png"); w,h=1024,d.get("height",806)
             htmltext=month_html(d)
